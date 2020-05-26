@@ -12,7 +12,7 @@ class AnjukeNewSpider(RedisSpider):
     allowed_domains = ['anjuke.com']
     start_urls = ['https://m.anjuke.com']
     redis_key = "anjuke_new:start_url"
-    custom_settings = {"CONCURRENT_REQUESTS":1,"CHANGE_IP_NUM":100}
+    custom_settings = {"CONCURRENT_REQUESTS":2,"CHANGE_IP_NUM":50,"SCHEDULER_QUEUE_CLASS": 'scrapy_redis.queue.FifoQueue'}
     file_name = r"W:\scrapy_xc\anjuke\{infolist}[ID,名称,代号].txt"
 
     def start_requests(self):

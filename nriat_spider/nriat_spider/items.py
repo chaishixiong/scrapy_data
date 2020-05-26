@@ -159,6 +159,14 @@ class GmWorkItem(scrapy.Item):
     type_lou = scrapy.Field()
     open_time = scrapy.Field()
     name1 = scrapy.Field()
+    id_city= scrapy.Field()
+    pinyin_city= scrapy.Field()
+    area_name= scrapy.Field()
+    area_url= scrapy.Field()
+    house_url= scrapy.Field()
+    house_id= scrapy.Field()
+    color = scrapy.Field()
+    age = scrapy.Field()
 
 class AmazonItem(scrapy.Item):
     url = scrapy.Field()

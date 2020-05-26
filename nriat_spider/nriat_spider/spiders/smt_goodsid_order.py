@@ -15,11 +15,12 @@ class SmtGoodsSpider(RedisSpider):
         'CONCURRENT_REQUESTS': 4,
     "DOWNLOADER_MIDDLEWARES" : {'nriat_spider.middlewares.SmtPrameDownloaderMiddleware': 20,
         'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 21,},
-        "CHANGE_IP_NUM":1000
+        "CHANGE_IP_NUM":1000,
+        "SCHEDULER_QUEUE_CLASS" : 'scrapy_redis.queue.LifoQueue'
         # "DOWNLOAD_DELAY" : 20,
     }
-    # seeds_file = r"X:\数据库\速卖通\{1_1_速卖通_店铺信息}[店铺ID,卖家ID].txt"
-    seeds_file = r"W:\scrapy_xc\smt_goodsid_order-error\error20200430-093011smt_goodsid_order55\1-10000.txt"
+    seeds_file = r"X:\数据库\速卖通\{1_1_速卖通_店铺信息}[店铺ID,卖家ID].txt"
+    # seeds_file = r"W:\scrapy_xc\smt_goodsid_order-error\error20200430-093011smt_goodsid_order55\1-10000.txt"
 
     def start_requests(self):
         yield scrapy.Request(url="https://www.baidu.com",dont_filter=True)

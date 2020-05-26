@@ -151,7 +151,7 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"#指定使用scrapy-re
 # 指定排序爬取地址时使用的队列，
 # 默认的 按优先级排序(Scrapy默认)，由sorted set实现的一种非FIFO、LIFO方式。
 # 广度优先:"scrapy_redis.queue.FifoQueue  深度优先:"SpiderPriorityQueue LifoQueue  优先： PriorityQueue
-SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.FifoQueue'
+SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.LifoQueue'
 REDIS_START_URLS_AS_SET = True
 REDIS_HOST = '192.168.0.226'
 REDIS_PORT = 5208
@@ -216,7 +216,7 @@ def get_ip():
     if match:
         ip_num = match.group(1)
     return ip_num
-if get_ip() in ["10","42","55","57"]:
+if get_ip() in ["10","42","55","57","101","102","103","104","105","106"]:
     USER_NAME = "057762355592"
     PASSWORD = "928858"
 else:
