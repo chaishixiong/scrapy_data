@@ -5,6 +5,8 @@ from nriat_spider.items import GmWorkItem
 from tools.tools_r.header_tool import headers_todict
 import re
 import json
+from scrapy.utils.reqser import request_to_dict
+from scrapy_redis import picklecompat
 
 
 class AllegroSpider(RedisSpider):
@@ -12,7 +14,8 @@ class AllegroSpider(RedisSpider):
     allowed_domains = ['allegro.pl']
     start_urls = ['http://allegro.pl/']
     redis_key = "allegro_goodlist:start_url"
-    file_name = r"W:\scrapy_xc\allegro_sort-data\20200507-111448allegro_sort226\1-10000.txt[F3].txt"
+    file_name = r"W:\scrapy_xc\allegro_sort-data_合并.txt[F3].txt"
+    error_key = "allegro_goodlist:error_url"
 
     def start_requests(self):
         headers = self.get_headers(1)
@@ -106,11 +109,15 @@ class AllegroSpider(RedisSpider):
             request.meta["try_num"] = try_num
             return request
         else:
-            item_e = GmWorkItem()
-            item_e["error_id"] = 1
-            for i in kwargs:
-                item_e[i] = kwargs[i]
-            return item_e
+            request = rsp.request
+            request.meta["try_num"] = 0
+            obj = request_to_dict(request, self)
+            data = picklecompat.dumps(obj)
+            try:
+                self.server.lpush(self.error_key, data)
+            except Exception as e:
+                print(e)
+
 
     def get_headers(self,type = 1):
         if type == 1:

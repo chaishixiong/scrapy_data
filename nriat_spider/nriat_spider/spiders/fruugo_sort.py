@@ -5,12 +5,15 @@ from nriat_spider.items import GmWorkItem
 from tools.tools_r.header_tool import headers_todict
 import re
 import json
+from scrapy.utils.reqser import request_to_dict
+from scrapy_redis import picklecompat
 
 class FruugoSpider(RedisSpider):
     name = 'fruugo_sort'
     allowed_domains = ['fruugo.co.uk/']
     start_urls = ['https://www.fruugo.co.uk/']
     redis_key = "fruugo_sort:start_url"
+    error_key = "fruugo_sort:error_url"
 
     custom_settings = {"CONCURRENT_REQUESTS":4,}
 
@@ -125,11 +128,14 @@ class FruugoSpider(RedisSpider):
             request.meta["try_num"] = try_num
             return request
         else:
-            item_e = GmWorkItem()
-            item_e["error_id"] = 1
-            for i in kwargs:
-                item_e[i] = kwargs[i]
-            return item_e
+            request = rsp.request
+            request.meta["try_num"] = 0
+            obj = request_to_dict(request, self)
+            data = picklecompat.dumps(obj)
+            try:
+                self.server.lpush(self.error_key, data)
+            except Exception as e:
+                print(e)
 
     def get_headers(self,type = 1):
         if type == 1:

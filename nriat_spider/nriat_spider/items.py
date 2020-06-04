@@ -167,6 +167,17 @@ class GmWorkItem(scrapy.Item):
     house_id= scrapy.Field()
     color = scrapy.Field()
     age = scrapy.Field()
+    city_shopnum = scrapy.Field()
+    branch_name = scrapy.Field()
+    star_score = scrapy.Field()
+    review_count = scrapy.Field()
+    price_text = scrapy.Field()
+    region_name = scrapy.Field()
+    category_name = scrapy.Field()
+    dish_tags = scrapy.Field()
+    has_takeaway = scrapy.Field()
+    city_name = scrapy.Field()
+    cate_name = scrapy.Field()
 
 class AmazonItem(scrapy.Item):
     url = scrapy.Field()

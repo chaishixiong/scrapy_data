@@ -5,7 +5,8 @@ from nriat_spider.items import GmWorkItem
 from tools.tools_r.header_tool import headers_todict
 import re,json
 import redis
-
+from scrapy.utils.reqser import request_to_dict
+from scrapy_redis import picklecompat
 
 class XiechengSpider(RedisSpider):
     name = 'xiecheng'

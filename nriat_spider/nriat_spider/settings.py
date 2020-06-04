@@ -72,10 +72,11 @@ DOWNLOADER_MIDDLEWARES = {
 #   'gm_work.middlewares.ProxyDownloaderMiddleware': 400,
 #   'gm_work.middlewares.SeleniumMiddleware': 10,
 #   'gm_work.middlewares.HostDownloaderMiddleware': 30,
-#   'gm_work.middlewares.SmtPrameDownloaderMiddleware': 20,
+#   'nriat_spider.middlewares.SmtPrameDownloaderMiddleware': 20,
     'nriat_spider.middlewares.IpChangeDownloaderMiddleware': 20,
     'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 21,
-#   'nriat_spider.middlewares.UpdatetimeMiddleware': 23,
+    # 'nriat_spider.middlewares.DaZhongDianPingDownloaderMiddleware': 23,
+    #   'nriat_spider.middlewares.UpdatetimeMiddleware': 23,
 
 }
 
@@ -93,7 +94,7 @@ EXTENSIONS = {
 ITEM_PIPELINES = {#从低到高
     'nriat_spider.pipelines.CodeWriterPipeline': 290,
     'nriat_spider.pipelines.JsonWriterPipeline': 300,
-    'nriat_spider.pipelines.errorWriterPipeline': 310,
+    # 'nriat_spider.pipelines.errorWriterPipeline': 310,
    # 'gm_work.pipelines.MysqlPipeline': 300,
    # 'scrapy_redis.pipelines.RedisPipeline': 290
 }
@@ -211,14 +212,14 @@ CHANGE_IP_NUM = 200
 import socket,re
 def get_ip():
     addrs = socket.getaddrinfo(socket.gethostname(), "")
-    match = re.search("'192.168.\d+.(\d+)'", str(addrs))
-    ip_num = "000"
+    match = re.search("'192.168.(\d+.\d+)'", str(addrs))
+    ip_num = "0.000"
     if match:
         ip_num = match.group(1)
     return ip_num
-if get_ip() in ["10","42","55","57","101","102","103","104","105","106"]:
+if get_ip() in ["0.10","0.42","0.55","0.57","10.101","10.102","10.103","10.104","10.105","10.106","10.100","9.97","9.95"]:
     USER_NAME = "057762355592"
     PASSWORD = "928858"
 else:
-    USER_NAME = "057762355594"
+    USER_NAME = "057762355594"#9.100 9.99 9.98 0.56 0.59
     PASSWORD = "045805"

@@ -4,6 +4,8 @@ from nriat_spider.items import GmWorkItem
 import json
 from scrapy_redis.spiders import RedisSpider
 import re
+from scrapy.utils.reqser import request_to_dict
+from scrapy_redis import picklecompat
 
 
 class SmtGoodsSpider(RedisSpider):
@@ -11,11 +13,12 @@ class SmtGoodsSpider(RedisSpider):
     allowed_domains = ['taobao.com']
     start_urls = ['https://h5.m.taobao.com']
     redis_key = "taobao_zhiboinfo:start_url"
-    seeds_file = r"X:\数据库\淘宝直播\taobao_id.txt"
+    seeds_file = r"X:\数据库\淘宝直播\taobao_id增加.txt"
     custom_settings = {"DOWNLOADER_MIDDLEWARES": {'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 20,
         'nriat_spider.middlewares.TaobaoZhiboDownloaderMiddleware': 21,},
                        "CONCURRENT_REQUESTS":1
                        }
+    error_key = "taobao_zhiboinfo:error_url"
 
 
     def start_requests(self):
@@ -95,8 +98,11 @@ class SmtGoodsSpider(RedisSpider):
             request.meta["try_num"] = try_num
             return request
         else:
-            item_e = GmWorkItem()
-            item_e["error_id"] = 1
-            for i in kwargs:
-                item_e[i] = kwargs[i]
-            return item_e
+            request = rsp.request
+            request.meta["try_num"] = 0
+            obj = request_to_dict(request, self)
+            data = picklecompat.dumps(obj)
+            try:
+                self.server.lpush(self.error_key, data)
+            except Exception as e:
+                print(e)

@@ -3,13 +3,15 @@ import scrapy
 from scrapy_redis.spiders import RedisSpider
 from nriat_spider.items import GmWorkItem
 from tools.tools_r.header_tool import headers_todict
-
+from scrapy.utils.reqser import request_to_dict
+from scrapy_redis import picklecompat
 
 class AllegroSpider(RedisSpider):
     name = 'allegro_sort'
     allowed_domains = ['allegro.pl']
     start_urls = ['http://allegro.pl/']
     redis_key = "allegro_sort:start_url"
+    error_key = "allegro_sort:error_url"
 
     def start_requests(self):
         url = "https://allegro.pl/mapa-strony/kategorie"
@@ -88,11 +90,15 @@ class AllegroSpider(RedisSpider):
             request.meta["try_num"] = try_num
             return request
         else:
-            item_e = GmWorkItem()
-            item_e["error_id"] = 1
-            for i in kwargs:
-                item_e[i] = kwargs[i]
-            return item_e
+            request = rsp.request
+            request.meta["try_num"] = 0
+            obj = request_to_dict(request, self)
+            data = picklecompat.dumps(obj)
+            try:
+                self.server.lpush(self.error_key, data)
+            except Exception as e:
+                print(e)
+
 
     def get_headers(self,type = 1):
         if type == 1:
