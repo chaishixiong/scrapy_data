@@ -16,7 +16,8 @@ class SmtGoodsSpider(RedisSpider):
     seeds_file = r"X:\数据库\淘宝直播\taobao_id增加.txt"
     custom_settings = {"DOWNLOADER_MIDDLEWARES": {'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 20,
         'nriat_spider.middlewares.TaobaoZhiboDownloaderMiddleware': 21,},
-                       "CONCURRENT_REQUESTS":1
+                       "CONCURRENT_REQUESTS":1,
+                       "CHANGE_IP_NUM":400
                        }
     error_key = "taobao_zhiboinfo:error_url"
 

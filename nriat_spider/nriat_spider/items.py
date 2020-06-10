@@ -178,6 +178,8 @@ class GmWorkItem(scrapy.Item):
     has_takeaway = scrapy.Field()
     city_name = scrapy.Field()
     cate_name = scrapy.Field()
+    shop_about = scrapy.Field()
+    vender_id = scrapy.Field()
 
 class AmazonItem(scrapy.Item):
     url = scrapy.Field()
@@ -191,7 +193,40 @@ class AmazonItem(scrapy.Item):
     offer_from = scrapy.Field()
     goodid = scrapy.Field()
 
+class EbayItemGood(scrapy.Item):
+    good_id = scrapy.Field()
+    good_name = scrapy.Field()
+    price_dollar = scrapy.Field()
+    price_RMB = scrapy.Field()
+    project_location = scrapy.Field()
+    brand = scrapy.Field()
+    seller_name = scrapy.Field()
+    sales_count = scrapy.Field()
+    cat_1 = scrapy.Field()
+    cat_2 = scrapy.Field()
+    cat_3 = scrapy.Field()
+    cat_4 = scrapy.Field()
+    cat_5 = scrapy.Field()
+    cat_6 = scrapy.Field()
+    source_code = scrapy.Field()
 
+class LinioItem(scrapy.Item):
+    shop_name = scrapy.Field()
+    sku = scrapy.Field()
+    good_name = scrapy.Field()
+    brand = scrapy.Field()
+    score = scrapy.Field()
+    price = scrapy.Field()
+    comment = scrapy.Field()
+    good_url = scrapy.Field()
+    source_code = scrapy.Field()
+    cat1 = scrapy.Field()
+    cat2 = scrapy.Field()
+    cat3 = scrapy.Field()
+    cat4 = scrapy.Field()
+    cat5 = scrapy.Field()
+    cat6 = scrapy.Field()
+	
 class softtime(scrapy.Item):
     id = scrapy.Field()
     pid = scrapy.Field()

@@ -289,7 +289,6 @@ class TaobaoZhiboDownloaderMiddleware(object):
         self.change_prame()
 
 
-
     def change_prame(self, test_id="1714128138"):
         num = 1
         while num < 5:

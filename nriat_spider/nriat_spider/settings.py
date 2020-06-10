@@ -217,9 +217,21 @@ def get_ip():
     if match:
         ip_num = match.group(1)
     return ip_num
-if get_ip() in ["0.10","0.42","0.55","0.57","10.101","10.102","10.103","10.104","10.105","10.106","10.100","9.97","9.95"]:
+if get_ip() in ["0.10","0.42","0.55","0.57","10.101","10.102","10.103","10.104","10.105","10.106","10.100","9.97","9.95","9.122","9.68"]:
     USER_NAME = "057762355592"
     PASSWORD = "928858"
+elif get_ip() == "9.123":
+    USER_NAME = "wzlce57746616"
+    PASSWORD = "123456"
+elif get_ip() == "9.124":
+    USER_NAME = "wzlcf57746616"
+    PASSWORD = "123456"
+elif get_ip() == "9.125":
+    USER_NAME = "wzlcg57746616"
+    PASSWORD = "123456"
+elif get_ip() == "9.126":
+    USER_NAME = "wzlcc57746616"
+    PASSWORD = "123456"
 else:
     USER_NAME = "057762355594"#9.100 9.99 9.98 0.56 0.59
     PASSWORD = "045805"

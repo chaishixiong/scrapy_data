@@ -14,7 +14,7 @@ class AllegroSpider(RedisSpider):
     allowed_domains = ['allegro.pl']
     start_urls = ['http://allegro.pl/']
     redis_key = "allegro_good:start_url"
-    seed_file = r"X:\数据库\allegro\{allegro_shopid缺少的}[good_url].txt"
+    seed_file = r"X:\数据库\allegro\{allegro_shopid}[good_url].txt"
     custom_settings = {"CHANGE_IP_NUM":20,"CONCURRENT_REQUESTS":4}
     error_key = "allegro_good:error_url"
 
