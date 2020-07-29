@@ -32,7 +32,6 @@ class ShopeeGoodSpider(RedisSpider):
                 meta = {"match_id":match_id,"page":page}
                 url = 'https://shopee.com.my/api/v2/search_items/?by=sales&limit=50&match_id={}&newest={}&order=desc&page_type=search&version=2'.format(match_id,page_num)
                 yield scrapy.Request(url=url,headers=headers,meta=meta)
-                break
 
     def parse(self, response):
         youxiao = re.search('("error":null)',response.text)
@@ -89,7 +88,7 @@ class ShopeeGoodSpider(RedisSpider):
                         item["name"] = name
                         item["price"] = price
                         item["currency"] = currency
-                        item["totle_num"] = historical_sold#历史销量
+                        item["total_num"] = historical_sold#历史销量
                         item["sales_num"] = sales_num
                         item["stock"] = stock
                         item["rating_star"] = rating_star

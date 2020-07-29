@@ -3,7 +3,9 @@ import scrapy
 from nriat_spider.items import GmWorkItem
 import json
 from scrapy_redis.spiders import RedisSpider
-
+from scrapy.utils.reqser import request_to_dict
+from scrapy_redis import picklecompat
+import redis
 
 class SmtGoodsSpider(RedisSpider):
     goods_num = 0
@@ -19,8 +21,10 @@ class SmtGoodsSpider(RedisSpider):
         "SCHEDULER_QUEUE_CLASS" : 'scrapy_redis.queue.LifoQueue'
         # "DOWNLOAD_DELAY" : 20,
     }
-    # seeds_file = r"X:\数据库\速卖通\{1_1_速卖通_店铺信息}[店铺ID,卖家ID].txt"
-    seeds_file = r"W:\scrapy_xc\smt_goodsid_order-error_合并.txt"
+    seeds_file = r"X:\数据库\速卖通\{1_2_有效店铺id}[店铺ID,卖家ID].txt"
+    # seeds_file = r"W:\scrapy_xc\smt_goodsid_order-error_合并.txt"
+    server1 = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
+    error_key = "smt_goodsid_order:error_url"
 
     def start_requests(self):
         yield scrapy.Request(url="https://www.baidu.com",dont_filter=True)
@@ -62,8 +66,10 @@ class SmtGoodsSpider(RedisSpider):
                 item = GmWorkItem()
                 id = i.get("id")
                 orders = i.get("orders")
+                piecePriceMoney = i.get("piecePriceMoney")
+                maxPrice= piecePriceMoney.get("amount")
                 salePrice = i.get("salePrice")
-                maxPrice = salePrice.get("maxPrice")
+                # maxPrice = salePrice.get("maxPrice")
                 minPrice = salePrice.get("minPrice")
                 pcDetailUrl = i.get("pcDetailUrl")
                 subject = i.get("subject")
@@ -75,7 +81,7 @@ class SmtGoodsSpider(RedisSpider):
 
                 item["shop_id"] = shop_id
                 item["seller_id"] = seller_id
-                item["totle_num"] = totle_num
+                item["total_num"] = totle_num
                 item["id"] = id
                 item["orders"] = orders
                 item["max_price"] = maxPrice
@@ -105,7 +111,7 @@ class SmtGoodsSpider(RedisSpider):
                 meta = {"totle_num":totle_num,"page_num": page_num, "shop_id": shop_id, "seller_id": seller_id}
                 yield scrapy.Request(url=url, callback=self.get_detail, method="GET",meta=meta)
         except Exception as e:
-            try_result = self.try_again(response, shop_id,seller_id,page_num)
+            try_result = self.try_again(response)
             yield try_result
 
     def from_file(self,file_name):
@@ -113,7 +119,7 @@ class SmtGoodsSpider(RedisSpider):
             for i in f:
                 yield i
 
-    def try_again(self,rsp,shop_id,seller_id,page_num):
+    def try_again(self,rsp):
         max_num = 5
         meta = rsp.meta
         try_num = meta.get("try_num",0)
@@ -124,9 +130,11 @@ class SmtGoodsSpider(RedisSpider):
             request.meta["try_num"] = try_num
             return request
         else:
-            item_e = GmWorkItem()
-            item_e["error_id"] = 1
-            item_e["shop_id"] = shop_id
-            item_e["seller_id"] = seller_id
-            item_e["page_num"] = page_num
-            return item_e
+            request = rsp.request
+            request.meta["try_num"] = 0
+            obj = request_to_dict(request, self)
+            data = picklecompat.dumps(obj)
+            try:
+                self.server1.lpush(self.error_key, data)
+            except Exception as e:
+                print(e)

@@ -13,7 +13,7 @@ class JdthSpider(RedisSpider):
     allowed_domains = ['jd.co.th']
     start_urls = ['']
     redis_key = "jd_th:start_url"
-    server = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
+    server1 = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
     error_key = "jd_th:error_url"
     area_num = [(10001,21000),(1000000,1004000)]
 
@@ -33,6 +33,11 @@ class JdthSpider(RedisSpider):
         vender_id = response.meta.get("vender_id")
         match = re.search("shop-name|ไม่พบหน้าเว็บที่คุณร้องขอ",response.text)
         if match:
+            item_s = GmWorkItem()
+            item_s["vender_id"] = vender_id
+            item_s["source_code"] = response.text
+            item_s["pipeline_level"] = "shop_info"
+            yield item_s
             headers = self.get_headers(2)
             shop_name = response.css(".cell.shop-name").xpath("./text()").get()
             info = response.css(".details-item").xpath("./a")
@@ -73,6 +78,10 @@ class JdthSpider(RedisSpider):
 
         match = re.search('"success":true',response.text)
         if match:
+            item_s = GmWorkItem()
+            item_s["vender_id"] = vender_id
+            item_s["source_code"] = response.text
+            yield item_s
             headers = self.get_headers(2)
             url = "https://m.jd.co.th/shop/search/searchWareAjax.json"
             data_json = json.loads(response.text)

@@ -27,7 +27,7 @@ class EbayinfoShopSpider(RedisSpider):
 
     # 构造商品列表页url
     def parse(self, response):
-        with open(r'F:/Pycharm/数据采集/ebay数据采集/ebay_解析/ebay_sellerID_解析/{2_2_ebay_店铺名称}[卖家名称].txt', 'r', encoding='utf-8') as f:
+        with open(r'W:/GC/ebay/{2_2_ebay_店铺名称}[卖家名称].txt', 'r', encoding='utf-8') as f:
             sellers_name = f.readlines()
             for seller_name in tqdm(sellers_name):
                 seller = seller_name.strip()
@@ -116,7 +116,7 @@ class EbayinfoShopSpider(RedisSpider):
         sales_count = response.xpath(
             '//a[@class="vi-txt-underline"]/text()').get()
         if sales_count != None:
-            sales_count = sales_count.split()[0]
+            sales_count = sales_count.split()[0].replace('，', '')
         else:
             sales_count = ''
 

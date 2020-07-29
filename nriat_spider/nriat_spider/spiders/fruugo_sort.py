@@ -19,7 +19,7 @@ class FruugoSpider(RedisSpider):
 
     def start_requests(self):
         headers = self.get_headers(1)
-        yield scrapy.Request(url="https://www.fruugo.co.uk/marketplace/site-navigation/header?language=en",headers=headers,callback=self.sort_all)
+        yield scrapy.Request(url="https://www.fruugo.co.uk/marketplace/api/site-navigation/header?language=en",headers=headers,callback=self.sort_all)
 
     def sort_all(self,response):
         request_url = response.request.url

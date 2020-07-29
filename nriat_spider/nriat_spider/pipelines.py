@@ -155,7 +155,7 @@ class CodeWriterPipeline(object):
         settings = crawler.settings
         return cls(settings)
 
-class errorWriterPipeline(object):
+class errorWriterPipeline(object):#失效
     def __init__(self,settings):
         self.settings = settings
         self.limit_num = settings.get("LIMIT_NUM_ERROR")

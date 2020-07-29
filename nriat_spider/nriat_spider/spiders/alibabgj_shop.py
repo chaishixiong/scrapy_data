@@ -115,7 +115,6 @@ class AlibabgjSpider(RedisSpider):
             item["address"] = address
             item["zip"] = zip
             item["contact_people"] = contact_people
-
             item["sales_money"] = ordAmt
             item["sales_num"] = ordCnt6m
             item["company_type"] = company_type

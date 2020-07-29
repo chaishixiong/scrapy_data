@@ -13,7 +13,7 @@ class NeweggGoodsSpider(RedisSpider):
     allowed_domains = ['newegg.com']
     start_urls = ['']
     redis_key = "newegg_goods:start_url"
-    custom_settings = {'CONCURRENT_REQUESTS': 1,"CHANGE_IP_NUM": 40,"SCHEDULER_QUEUE_CLASS": 'scrapy_redis.queue.FifoQueue'}
+    custom_settings = {'CONCURRENT_REQUESTS': 2,"CHANGE_IP_NUM": 40,"SCHEDULER_QUEUE_CLASS": 'scrapy_redis.queue.FifoQueue',"REDIRECT_ENABLED":True}
     server = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
     error_key = "newegg_goods:error_url"
 
@@ -49,23 +49,27 @@ class NeweggGoodsSpider(RedisSpider):
                 yield item
                 yield scrapy.Request(url=url,headers=headers,callback=self.detail_data,meta={"sort_name":name,"first":True})
         else:
-            try_result = self.try_again(response,url=response.url)
+            try_result = self.try_again(response)
             yield try_result
 
     def detail_data(self,response):
         sort = response.meta.get("sort_name")
         first = response.meta.get("first")
         req_url = response.request.url
-        match = re.search('baBreadcrumbTop',response.text)
-
+        match = re.search('baBreadcrumbTop|item-container|find the SubCategory|check your',response.text)
         if match:
+            item_s = GmWorkItem()
+            item_s["source_code"] = response.text
+            yield item_s
             headers =self.get_headers(1)
             goods_list = response.css(".item-container")
             for i in goods_list:
                 url = i.xpath("./div[@class='item-info']/a/@href").get()
                 name_goods = i.xpath("./div[@class='item-info']/a/text()").get()
                 brand = i.xpath(".//div[@class='item-branding']/a/img/@title").get()
-                price = i.xpath(".//li[@class='price-current']").xpath("string(.)").get("")
+                price = i.xpath(".//li[@class='price-current ']").xpath("string(.)").get("")
+                if not price:
+                    price = i.xpath(".//li[@class='price-current']").xpath("string(.)").get("")
                 price = re.sub("[^\d\.]","",price)
                 goods_id = i.xpath(".//div[@class='item-stock']/@id").get("")
                 goods_id = goods_id.replace("stock_","")
@@ -107,7 +111,7 @@ class NeweggGoodsSpider(RedisSpider):
                 item["shop_name"] = shop_name
                 yield item
                 if first:
-                    page_str = response.css(".list-tool-pagination-text").xpath("./strong/text()").get("")
+                    page_str = response.css(".list-tool-pagination-text").xpath("./strong").xpath("string(.)").get("")
                     match1 = re.search("/(\d+)",page_str)
                     if match1:
                         page_num = int(match1.group(1))
@@ -115,6 +119,9 @@ class NeweggGoodsSpider(RedisSpider):
                             url = req_url.replace("?","/Page-{}?".format(i))
                             yield scrapy.Request(url=url, headers=headers, callback=self.detail_data,
                                                  meta={"sort_name": sort})
+        else:
+            try_result = self.try_again(response)
+            yield try_result
 
 
     def try_again(self,rsp,**kwargs):

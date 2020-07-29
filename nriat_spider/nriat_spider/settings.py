@@ -130,7 +130,7 @@ REDIRECT_MAX_TIMES = 5
 
 
 
-DOWNLOAD_TIMEOUT = 30#超时等待时间
+DOWNLOAD_TIMEOUT = 15#超时等待时间
 #DOWNLOAD_MAXSIZE下载最大相应大小
 #DOWNLOAD_WARNSIZE下载警告大小
 
@@ -232,6 +232,14 @@ elif get_ip() == "9.125":
 elif get_ip() == "9.126":
     USER_NAME = "wzlcc57746616"
     PASSWORD = "123456"
+elif get_ip() in ["9.148","9.149","9.170","9.171","9.172","9.173"]:
+    USER_NAME = "057764473605"
+    PASSWORD = "744523"
 else:
     USER_NAME = "057762355594"#9.100 9.99 9.98 0.56 0.59
     PASSWORD = "045805"
+if get_ip() =="0.226":
+    LOCATION_TEST = True
+
+#rasdial ADSL 057762355594 045805
+#rasdial 宽带连接 057764473605  744523
