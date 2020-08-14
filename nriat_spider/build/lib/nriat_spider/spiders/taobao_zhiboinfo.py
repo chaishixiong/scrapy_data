@@ -4,7 +4,7 @@ from nriat_spider.items import GmWorkItem
 import json
 from scrapy_redis.spiders import RedisSpider
 import re
-
+import redis
 
 class SmtGoodsSpider(RedisSpider):
     name = 'taobao_zhiboinfo'
@@ -14,8 +14,10 @@ class SmtGoodsSpider(RedisSpider):
     seeds_file = r"X:\数据库\淘宝直播\taobao_id.txt"
     custom_settings = {"DOWNLOADER_MIDDLEWARES": {'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 20,
         'nriat_spider.middlewares.TaobaoZhiboDownloaderMiddleware': 21,},
-                       "CONCURRENT_REQUESTS":1
-                       }
+                       "CONCURRENT_REQUESTS":1}
+    server1 = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
+    # server1 = redis.Redis(host='127.0.0.1', port=6379, decode_responses=True,password="nriat.123456")
+    next_seed = "taobao_goodsid:start_url"
 
 
     def start_requests(self):
@@ -26,7 +28,7 @@ class SmtGoodsSpider(RedisSpider):
             sellerid = i.strip()
             url = "https://{}.taobao.com".format(sellerid)
             meta = {"seller_id":sellerid}
-            yield scrapy.Request(url=url,callback=self.get_detail,method="GET",meta=meta)
+            yield scrapy.Request(url=url,callback=self.get_detail,method="GET",meta=meta,dont_filter=True)
 
     def get_detail(self, response):
         seller_id = response.meta.get("seller_id")
@@ -44,33 +46,35 @@ class SmtGoodsSpider(RedisSpider):
                     fansCount = relation.get("fansCount")
                     followTopCount = relation.get("followTopCount")
                     liveCount = relation.get("liveCount")
-                    replays = data.get("replays")
-                    info_list = []
-                    viewer_totle = 0
+
+                    ##y预告的部分 之后再做
+                    # prevueVideos = data.get("prevueVideos")
+                    # for video in prevueVideos:
+                    #     title = video.get("title")
+                    #     prevueBegainTime = video.get("prevueBegainTime")#预告时间
+                    #     liveId = video.get("liveId")#预告场次id
+                    #     # self.server1.zadd("","")#将时间和场次id加入到队列中 后续根据当前时间取出场次id跑场次id取goodsid的脚本
+                    ##
+                    replays = data.get("replays")#这个是过去十场直播数据
                     for i in replays:
-                        info_dict = dict()
                         liveId = i.get("liveId")
                         liveTime = i.get("liveTime")
                         roomTypeName = i.get("roomTypeName")
                         title = i.get("title")
                         viewerCount = i.get("viewerCount")
-                        info_dict["liveId"] = liveId
-                        info_dict["liveTime"] = liveTime
-                        info_dict["roomTypeName"] = roomTypeName
-                        info_dict["title"] = title
-                        info_dict["viewerCount"] = viewerCount
-                        info_list.append(info_dict)
-                        viewer_totle+=int(viewerCount)
-                    live_info = json.dumps(info_list)
-                    item = GmWorkItem()
-                    item["anchor_id"] = anchorId
-                    item["nick"] = nick
-                    item["fans_count"] = fansCount
-                    item["follow_count"] = followTopCount
-                    item["live_count"] = liveCount
-                    item["viewer_totle"] = viewer_totle
-                    item["live_info"] = live_info
-                    yield item
+                        item = GmWorkItem()
+                        item["anchor_id"] = anchorId
+                        item["nick"] = nick
+                        item["fans_count"] = fansCount
+                        item["follow_count"] = followTopCount
+                        item["live_count"] = liveCount
+                        item["live_id"] = liveId
+                        item["live_time"] = liveTime
+                        item["room_name"] = roomTypeName
+                        item["title"] = title
+                        item["viewer_count"] = viewerCount
+                        yield item
+                        self.server1.sadd(self.next_seed,"{}:{}".format(liveId,anchorId))
             except Exception as e:
                 print(e)
                 try_result = self.try_again(response, seller_id=seller_id)

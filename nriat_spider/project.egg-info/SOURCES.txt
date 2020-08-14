@@ -1,5 +1,6 @@
 setup.py
 nriat_spider/__init__.py
+nriat_spider/compression_spider.py
 nriat_spider/debug.py
 nriat_spider/extension.py
 nriat_spider/items.py

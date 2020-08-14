@@ -72,10 +72,11 @@ DOWNLOADER_MIDDLEWARES = {
 #   'gm_work.middlewares.ProxyDownloaderMiddleware': 400,
 #   'gm_work.middlewares.SeleniumMiddleware': 10,
 #   'gm_work.middlewares.HostDownloaderMiddleware': 30,
-#   'gm_work.middlewares.SmtPrameDownloaderMiddleware': 20,
+#   'nriat_spider.middlewares.SmtPrameDownloaderMiddleware': 20,
     'nriat_spider.middlewares.IpChangeDownloaderMiddleware': 20,
     'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 21,
-#   'nriat_spider.middlewares.UpdatetimeMiddleware': 23,
+    # 'nriat_spider.middlewares.DaZhongDianPingDownloaderMiddleware': 23,
+    #   'nriat_spider.middlewares.UpdatetimeMiddleware': 23,
 
 }
 
@@ -93,7 +94,7 @@ EXTENSIONS = {
 ITEM_PIPELINES = {#从低到高
     'nriat_spider.pipelines.CodeWriterPipeline': 290,
     'nriat_spider.pipelines.JsonWriterPipeline': 300,
-    'nriat_spider.pipelines.errorWriterPipeline': 310,
+    # 'nriat_spider.pipelines.errorWriterPipeline': 310,
    # 'gm_work.pipelines.MysqlPipeline': 300,
    # 'scrapy_redis.pipelines.RedisPipeline': 290
 }
@@ -129,7 +130,7 @@ REDIRECT_MAX_TIMES = 5
 
 
 
-DOWNLOAD_TIMEOUT = 30#超时等待时间
+DOWNLOAD_TIMEOUT = 15#超时等待时间
 #DOWNLOAD_MAXSIZE下载最大相应大小
 #DOWNLOAD_WARNSIZE下载警告大小
 
@@ -151,7 +152,7 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"#指定使用scrapy-re
 # 指定排序爬取地址时使用的队列，
 # 默认的 按优先级排序(Scrapy默认)，由sorted set实现的一种非FIFO、LIFO方式。
 # 广度优先:"scrapy_redis.queue.FifoQueue  深度优先:"SpiderPriorityQueue LifoQueue  优先： PriorityQueue
-SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.FifoQueue'
+SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.LifoQueue'
 REDIS_START_URLS_AS_SET = True
 REDIS_HOST = '192.168.0.226'
 REDIS_PORT = 5208
@@ -211,14 +212,34 @@ CHANGE_IP_NUM = 200
 import socket,re
 def get_ip():
     addrs = socket.getaddrinfo(socket.gethostname(), "")
-    match = re.search("'192.168.\d+.(\d+)'", str(addrs))
-    ip_num = "000"
+    match = re.search("'192.168.(\d+.\d+)'", str(addrs))
+    ip_num = "0.000"
     if match:
         ip_num = match.group(1)
     return ip_num
-if get_ip() in ["10","42","55","57"]:
+if get_ip() in ["0.10","0.42","0.55","0.57","10.101","10.102","10.103","10.104","10.105","10.106","10.100","9.97","9.95","9.122","9.68"]:
     USER_NAME = "057762355592"
     PASSWORD = "928858"
+elif get_ip() == "9.123":
+    USER_NAME = "wzlce57746616"
+    PASSWORD = "123456"
+elif get_ip() == "9.124":
+    USER_NAME = "wzlcf57746616"
+    PASSWORD = "123456"
+elif get_ip() == "9.125":
+    USER_NAME = "wzlcg57746616"
+    PASSWORD = "123456"
+elif get_ip() == "9.126":
+    USER_NAME = "wzlcc57746616"
+    PASSWORD = "123456"
+elif get_ip() in ["9.148","9.149","9.170","9.171","9.172","9.173"]:
+    USER_NAME = "057764473605"
+    PASSWORD = "744523"
 else:
-    USER_NAME = "057762355594"
+    USER_NAME = "057762355594"#9.100 9.99 9.98 0.56 0.59
     PASSWORD = "045805"
+if get_ip() =="0.226":
+    LOCATION_TEST = True
+
+#rasdial ADSL 057762355594 045805
+#rasdial 宽带连接 057762355592 928858

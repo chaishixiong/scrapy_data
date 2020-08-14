@@ -11,7 +11,7 @@ class AnjukeNewgoodsSpider(RedisSpider):
     allowed_domains = ['anjuke.com']
     start_urls = ['https://m.anjuke.com']
     redis_key = "anjuke_newgoods:start_url"
-    custom_settings = {"CONCURRENT_REQUESTS":4,"CHANGE_IP_NUM":50}
+    custom_settings = {"CONCURRENT_REQUESTS":4,"CHANGE_IP_NUM":50,"SCHEDULER_QUEUE_CLASS": 'scrapy_redis.queue.FifoQueue'}
     file_name = r"W:\scrapy_xc\anjuke_new-data_合并缺少的.txt_去重.txt[F2,F3,F4].txt"
 
     def start_requests(self):

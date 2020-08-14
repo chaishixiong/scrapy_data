@@ -5,6 +5,8 @@ from nriat_spider.items import GmWorkItem
 from tools.tools_r.header_tool import headers_todict
 import re
 import json
+from scrapy.utils.reqser import request_to_dict
+from scrapy_redis import picklecompat
 
 
 class AllegroSpider(RedisSpider):
@@ -12,8 +14,9 @@ class AllegroSpider(RedisSpider):
     allowed_domains = ['allegro.pl']
     start_urls = ['http://allegro.pl/']
     redis_key = "allegro_good:start_url"
-    seed_file = r"X:\数据库\allegro\{allegro_shopid缺少的}[good_url].txt"
-    custom_settings = {"CHANGE_IP_NUM":20,"CONCURRENT_REQUESTS":4}
+    seed_file = r"X:\数据库\allegro\{allegro_shopid}[good_url].txt"
+    custom_settings = {"CHANGE_IP_NUM":20,"CONCURRENT_REQUESTS":4,"REDIRECT_ENABLED":True}
+    error_key = "allegro_good:error_url"
 
     def start_requests(self):
         headers = self.get_headers(1)
@@ -21,7 +24,7 @@ class AllegroSpider(RedisSpider):
         yield scrapy.Request(url=url, method="GET",callback=self.seed_requests, headers=headers,dont_filter=True)
 
     def seed_requests(self, response):
-        url = "https://allegro.pl/oferta/zestaw-czyszczacy-9w1-do-aparatu-optyki-sciereczka-8906638228"
+        # url = "https://allegro.pl/oferta/zestaw-czyszczacy-9w1-do-aparatu-optyki-sciereczka-8906638228"
         headers = self.get_headers(1)
         with open(self.seed_file,"r",encoding="utf-8") as f:
             for i in f:
@@ -29,7 +32,7 @@ class AllegroSpider(RedisSpider):
                 yield scrapy.Request(url=url, method="GET", headers=headers)
 
     def parse(self,response):
-        youxiao = re.search("(About seller|Sprzedający)",response.text)
+        youxiao = re.search("(About seller|Sprzedający)", response.text)
         url = response.request.url
         if youxiao:
             item_s = GmWorkItem()
@@ -37,18 +40,14 @@ class AllegroSpider(RedisSpider):
             item_s["source_code"] = response.text
             yield item_s
             seller_id = ""
-            positive_number = ""
-            bad_number = ""
-            match = re.search('"sellerId":"(.*?)"',response.text)
+            match = re.search('"sellerId":"(.*?)"', response.text)
             if match:
                 seller_id = match.group(1)
-            positive_feedback = response.css(".a7caa336.d7c56f78._476b319e").xpath("./text()").get()
-            number = response.css(".fa4668cc").xpath("./text()").getall()
-            if len(number) == 2:
-                positive_number = number[0]
-                bad_number = number[1]
-            year = response.css("._1604f5d6._82f13583").xpath("./div/div/text()").get()
-            match = re.search('({"leftLink".*?"hideContact":.*?})',response.text)
+            positive_feedback = response.xpath("//h1[@data-role='recommends-percentage']/text()").get()
+            positive_number = response.xpath("//img[@alt='thumb up']/following-sibling::p/text()").get()
+            bad_number = response.xpath("//img[@alt='thumb down']/following-sibling::p/text()").get()
+            year = response.xpath("//p[text()='Na allegro']/following-sibling::p/text()").get()
+            match = re.search('({"leftLink".*?"hideContact":.*?})', response.text)
             regon = ""
             nip = ""
             company_data = []
@@ -64,7 +63,6 @@ class AllegroSpider(RedisSpider):
                             nip = i
                 except:
                     pass
-
             item = GmWorkItem()
             item["seller_id"] = seller_id
             item["positive_feedback"] = positive_feedback
@@ -91,11 +89,15 @@ class AllegroSpider(RedisSpider):
             request.meta["try_num"] = try_num
             return request
         else:
-            item_e = GmWorkItem()
-            item_e["error_id"] = 1
-            for i in kwargs:
-                item_e[i] = kwargs[i]
-            return item_e
+            request = rsp.request
+            request.meta["try_num"] = 0
+            obj = request_to_dict(request, self)
+            data = picklecompat.dumps(obj)
+            try:
+                self.server.lpush(self.error_key, data)
+            except Exception as e:
+                print(e)
+
 
     def get_headers(self,type = 1):
         if type == 1:

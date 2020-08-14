@@ -15,6 +15,7 @@ from scrapy import signals
 import os
 import re
 import time
+import types
 from twisted.internet import defer
 from twisted.internet.error import TimeoutError, DNSLookupError, \
     ConnectionRefusedError, ConnectionDone, ConnectError, \
@@ -23,6 +24,7 @@ from twisted.web.client import ResponseFailed
 from scrapy.core.downloader.handlers.http11 import TunnelError
 from scrapy.http.response.html import HtmlResponse
 import datetime
+import random
 
 
 class NriatSpiderSpiderMiddleware(object):
@@ -38,34 +40,16 @@ class NriatSpiderSpiderMiddleware(object):
         return s
 
     def process_spider_input(self, response, spider):
-        # Called for each response that goes through the spider
-        # middleware and into the spider.
-
-        # Should return None or raise an exception.
         return None
 
     def process_spider_output(self, response, result, spider):
-        # Called with the results returned from the Spider, after
-        # it has processed the response.
-
-        # Must return an iterable of Request, dict or Item objects.
         for i in result:
             yield i
 
     def process_spider_exception(self, response, exception, spider):
-        # Called when a spider or process_spider_input() method
-        # (from other spider middleware) raises an exception.
-
-        # Should return either None or an iterable of Request, dict
-        # or Item objects.
         pass
 
     def process_start_requests(self, start_requests, spider):
-        # Called with the start requests of the spider, and works
-        # similarly to the process_spider_output() method, except
-        # that it doesn’t have a response associated.
-
-        # Must return only requests (not items).
         for r in start_requests:
             yield r
 
@@ -128,7 +112,6 @@ class SmtPrameDownloaderMiddleware(object):
         self.num = 0
         self.crawler = crawler
         settings = crawler.settings
-        self.change_prame()
         self.chang_ip = settings.get("CHANGE_IP_NUM")
         self.username = settings.get("USER_NAME")
         self.password = settings.get("PASSWORD")
@@ -160,43 +143,36 @@ class SmtPrameDownloaderMiddleware(object):
             shop_id = meta.get("shop_id")
             seller_id = meta.get("seller_id")
             page_num = meta.get("page_num")
-            if page_num == 1:
-                self.num += 1
-                if self.num % self.chang_ip == 0:
-                    print("换ip换参数")
-                    self.crawler.engine.pause()
-                    ip_num = 0
-                    while ip_num < 5:
-                        time.sleep(1)
-                        ip_num += 1
-                        state = "失败"
-                        try:
-                            state = self.huan_ip()
-                        except Exception as e:
-                            print(e)
-                        if state == "成功":
-                            self.crawler.engine.unpause()
-                            break
-                        print("换ip错误")
-                    else:
-                        print("ip切换错误：引擎停止")
-                        self.crawler.engine.close()
+            self.num += 1
+            if self.num % self.chang_ip == 1:
+                print("换ip换参数")
+                self.crawler.engine.pause()
+                ip_num = 0
+                while ip_num < 5:
+                    time.sleep(1)
+                    ip_num += 1
+                    state = "失败"
                     try:
-                        self.change_prame()
+                        state = self.huan_ip()
                     except Exception as e:
-                        print("参数切换错误：引擎停止")
-                        self.crawler.engine.close()
+                        print(e)
+                    if state == "成功":
+                        self.crawler.engine.unpause()
+                        break
+                    print("换ip错误")
+                else:
+                    print("ip切换错误：引擎停止")
+                    self.crawler.engine.close()
+                try:
+                    self.change_prame()
+                except Exception as e:
+                    print("参数切换错误：引擎停止")
+                    self.crawler.engine.close()
 
             prame = self.prame
             etag = self.etag
             prame3 = self.prame3
-            url = "https://m.aliexpress.com/store/v3/home.html?shopId={}&sellerId={}&pagePath=allProduct.htm".format(
-                shop_id, seller_id)
-            # if not prame or not etag or not prame3:
-            #     try:
-            #         prame, etag, prame3 = get_allprame(shop_id, seller_id, url)  # 这里生成token参数
-            #     except Exception as e:
-            #         print(e)
+            url = "https://m.aliexpress.com/store/v3/home.html?shopId={}&sellerId={}&pagePath=allProduct.htm".format(shop_id, seller_id)
 
             time_str = int(time.time() * 1000)
             appkey = "24770048"
@@ -215,31 +191,16 @@ class SmtPrameDownloaderMiddleware(object):
             headers4["Origin"] = "https://m.aliexpress.com"
             headers4["Cookie"] = cookies_s
             request._set_url(url4)
-            # request.meta["prame"] = prame
-            # request.meta["etag"] = etag
-            # request.meta["prame3"] = prame3
             for i in headers4:
-                request.headers.setdefault(i,headers4[i])
+                request.headers[i] = headers4[i]
+                # request.headers.setdefault(i,headers4[i])
 
         return None
 
     def process_response(self, request, response, spider):
-        # Called with the response returned from the downloader.
-
-        # Must either;
-        # - return a Response object
-        # - return a Request objectip_c
-        # - or raise IgnoreRequest
         return response
 
     def process_exception(self, request, exception, spider):
-        # Called when a download handler or a process_request()
-        # (from other downloader middleware) raises an exception.
-
-        # Must either:
-        # - return None: continue processing this exception
-        # - return a Response object: stops process_exception() chain
-        # - return a Request object: stops process_exception() chain
         pass
 
     def spider_opened(self, spider):
@@ -282,25 +243,22 @@ class TaobaoZhiboDownloaderMiddleware(object):
         self.crawler = crawler
         settings = crawler.settings
         self.cookies_dict = None
-        self.chang_ip = settings.get("CHANGE_IP_NUM")
-        self.username = settings.get("USER_NAME")
-        self.password = settings.get("PASSWORD")
-        self.huan_ip()
-        self.change_prame()
+        self.chang_ip = settings.get("CHANGE_IP_NUM")#ip有关的参数
+        username = settings.get("USER_NAME")
+        password = settings.get("PASSWORD")
+        location_test = settings.get("LOCATION_TEST")
+        self.IP = IpChange(username,password)
+        self.IP.change_prame = types.MethodType(self.change_prame, self.IP)  # 将函数run,添加到p1的对象里面。对象里添加函数的方法。
+        self.IP.prame_state = True
+        self.IP.location_test = location_test
 
 
+    def change_prame(self, self1):
+        test_id = "1714128138"
+        self.cookies_dict = self.get_sign1(test_id)
+        if self.cookies_dict:
+            return 1
 
-    def change_prame(self, test_id="1714128138"):
-        num = 1
-        while num < 5:
-            num += 1
-            self.cookies_dict = self.get_sign1(test_id)
-            if self.cookies_dict:
-                break
-            time.sleep(1)
-        else:
-            print("参数获取错误超过五次,engine")
-            raise Exception()
 
     def get_sign1(self,sellerid):
         headers1 = self.get_taobao_headers()
@@ -320,7 +278,7 @@ class TaobaoZhiboDownloaderMiddleware(object):
             cookies_dict["t"] = set_cookies.get("t", "")
             cookies_dict["_m_h5_tk"] = set_cookies.get("_m_h5_tk", "")
             cookies_dict["_m_h5_tk_enc"] = set_cookies.get("_m_h5_tk_enc", "")
-            if cookies_dict.get("t") and cookies_dict.get("_m_h5_tk") and cookies_dict.get("_m_h5_tk_enc"):
+            if cookies_dict.get("_m_h5_tk") and cookies_dict.get("_m_h5_tk_enc"):
                 return cookies_dict
         except Exception as e:
             pass
@@ -341,101 +299,61 @@ class TaobaoZhiboDownloaderMiddleware(object):
         return cls(crawler)
 
     def process_request(self, request, spider):
-        if spider.name == "taobao_zhiboinfo" and not request.url.endswith("baidu.com"):
+        if (spider.name == "taobao_zhiboinfo" or spider.name == "taobao_goodsid") and not request.url.endswith("baidu.com"):
             meta = request.meta
-            sellerid = meta.get("seller_id")
             self.num += 1
-            if self.num % self.chang_ip == 0:
-                print("换ip换参数")
+            if self.num % self.chang_ip == 1:
                 self.crawler.engine.pause()
-                ip_num = 0
-                while ip_num < 5:
-                    time.sleep(1)
-                    ip_num += 1
-                    state = "失败"
-                    try:
-                        state = self.huan_ip()
-                    except Exception as e:
-                        print(e)
-                    if state == "成功":
-                        break
-                    print("换ip错误")
-                else:
-                    print("ip切换错误：引擎停止")
-                    self.crawler.engine.close()
-                try:
-                    self.change_prame()
+                state = self.IP.change_ipandprame()
+                if state:
                     self.crawler.engine.unpause()
-                except Exception as e:
+                else:
                     print("参数切换错误：引擎停止")
                     self.crawler.engine.close()
-
-            headers2 = self.get_taobao_headers()
-            headers2["referer"] = "https://tblive.m.taobao.com/wow/tblive/act/host-detail?wh_weex=true&broadcasterId={}".format(sellerid)  # broadcasterId
-            cookeis = dict_to_cookiesstr(self.cookies_dict)
-            headers2["Cookie"] = cookeis
-            time_now = str(int(time.time() * 1000))
-            appkey = "12574478"
-            data = '{{"broadcasterId":"{}","start":0,"limit":10}}'.format(sellerid)  #broadcasterId
-            sign_token = self.cookies_dict.get("_m_h5_tk").split("_")[0]
-            sign = get_taobaosign(time=time_now, appKey=appkey, data=data, token=sign_token)
-            url2 = "https://h5api.m.taobao.com/h5/mtop.mediaplatform.anchor.info/1.0/?jsv=2.4.8&appKey={}&t={}&sign={}&api=mtop.mediaplatform.anchor.info&v=1.0&AntiCreep=true&AntiFlood=true&type=jsonp&dataType=jsonp&callback=mtopjsonp3&data=%7B%22broadcasterId%22%3A%22{}%22%2C%22start%22%3A0%2C%22limit%22%3A10%7D"
-
-            url2 = url2.format(appkey, time_now, sign, sellerid)
-
-            request._set_url(url2)
-            for i in headers2:
-                request.headers[i] = headers2[i]#.setdefault(i,headers2[i])
+            if spider.name == "taobao_zhiboinfo":
+                sellerid = meta.get("seller_id")
+                headers2 = self.get_taobao_headers()
+                headers2["referer"] = "https://tblive.m.taobao.com/wow/tblive/act/host-detail?wh_weex=true&broadcasterId={}".format(sellerid)  # broadcasterId
+                cookeis = dict_to_cookiesstr(self.cookies_dict)
+                headers2["Cookie"] = cookeis
+                time_now = str(int(time.time() * 1000))
+                appkey = "12574478"
+                data = '{{"broadcasterId":"{}","start":0,"limit":10}}'.format(sellerid)  #broadcasterId
+                sign_token = self.cookies_dict.get("_m_h5_tk").split("_")[0]
+                sign = get_taobaosign(time=time_now, appKey=appkey, data=data, token=sign_token)
+                url2 = "https://h5api.m.taobao.com/h5/mtop.mediaplatform.anchor.info/1.0/?jsv=2.4.8&appKey={}&t={}&sign={}&api=mtop.mediaplatform.anchor.info&v=1.0&AntiCreep=true&AntiFlood=true&type=jsonp&dataType=jsonp&callback=mtopjsonp3&data=%7B%22broadcasterId%22%3A%22{}%22%2C%22start%22%3A0%2C%22limit%22%3A10%7D"
+                url2 = url2.format(appkey, time_now, sign, sellerid)
+                request._set_url(url2)
+                for i in headers2:
+                    request.headers[i] = headers2[i]
+            elif spider.name=="taobao_goodsid":
+                live_id = meta.get("live_id")
+                seller_id = meta.get("seller_id")
+                headers2 = self.get_taobao_headers()
+                headers2["referer"] = "https://h5.m.taobao.com/taolive/video.html?id={}".format(live_id)  # broadcasterId
+                cookeis = dict_to_cookiesstr(self.cookies_dict)
+                headers2["Cookie"] = cookeis
+                time_now = str(int(time.time() * 1000))
+                appkey = "12574478"
+                data = '{{"type":"0","liveId":"{}","creatorId":"{}"}}'.format(live_id,seller_id)  #broadcasterId
+                sign_token = self.cookies_dict.get("_m_h5_tk").split("_")[0]
+                sign = get_taobaosign(time=time_now, appKey=appkey, data=data, token=sign_token)
+                url2 = "https://h5api.m.taobao.com/h5/mtop.mediaplatform.video.livedetail.itemlist/1.0/?jsv=2.4.0&appKey={}&t={}&sign={}&AntiCreep=true&api=mtop.mediaplatform.video.livedetail.itemlist&v=1.0&type=jsonp&dataType=jsonp&callback=mtopjsonp4&data=%7B%22type%22%3A%220%22%2C%22liveId%22%3A%22{}%22%2C%22creatorId%22%3A%22{}%22%7D"
+                url2 = url2.format(appkey, time_now, sign, live_id,seller_id)
+                request._set_url(url2)
+                for i in headers2:
+                    request.headers[i] = headers2[i]
         return None
 
     def process_response(self, request, response, spider):
-        # Called with the response returned from the downloader.
-
-        # Must either;
-        # - return a Response object
-        # - return a Request objectip_c
-        # - or raise IgnoreRequest
         return response
 
     def process_exception(self, request, exception, spider):
-        # Called when a download handler or a process_request()
-        # (from other downloader middleware) raises an exception.
-
-        # Must either:
-        # - return None: continue processing this exception
-        # - return a Response object: stops process_exception() chain
-        # - return a Request object: stops process_exception() chain
         pass
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
 
-    def connect(self):
-        name = "宽带连接"
-        username = self.username
-        password = self.password
-        cmd_str = "rasdial %s %s %s" % (name, username, password)
-        res = os.system(cmd_str)
-        if res == 0:
-            print("连接成功")
-            return "成功"
-        else:
-            print("连接失败")
-            return "失败"
-
-    def disconnect(self):
-        name = "宽带连接"
-        cmdstr = "rasdial %s /disconnect" % name
-        os.system(cmdstr)
-        print('断开成功')
-
-    def huan_ip(self):
-
-        # 断开网络
-        self.disconnect()
-        # 开始拨号
-        a = self.connect()
-        return a
 
 class IpChangeDownloaderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -445,9 +363,13 @@ class IpChangeDownloaderMiddleware(object):
         self.crawler = crawler
         settings = crawler.settings
         self.num = 0
-        self.chang_ip = settings.get("CHANGE_IP_NUM")
-        self.username = settings.get("USER_NAME")
-        self.password = settings.get("PASSWORD")
+        self.chang_ip = settings.get("CHANGE_IP_NUM")#ip有关的参数
+        username = settings.get("USER_NAME")
+        password = settings.get("PASSWORD")
+        self.IP = IpChange(username,password)
+        location_test = settings.get("LOCATION_TEST")
+        self.IP.location_test = location_test
+
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -456,70 +378,22 @@ class IpChangeDownloaderMiddleware(object):
     def process_request(self, request, spider):
         change_num = self.chang_ip
         self.num += 1
-        if self.num % change_num == 0:
-            # print("换ip换参数")
+        if self.num % change_num == 1:
             self.crawler.engine.pause()
-            ip_num = 0
-            while ip_num < 5:
-                time.sleep(1)
-                ip_num += 1
-                state = "失败"
-                try:
-                    state = self.huan_ip()
-                except Exception as e:
-                    print(e)
-                if state == "成功":
-                    self.crawler.engine.unpause()
-                    break
+            state = self.IP.change_ipandprame()
+            if state:
+                self.crawler.engine.unpause()
             else:
                 print("ip切换错误：引擎停止")
                 self.crawler.engine.close()
         return None
 
     def process_response(self, request, response, spider):
-        # Called with the response returned from the downloader.
-        # Must either;
-        # - return a Response object
-        # - return a Request objectip_c
-        # - or raise IgnoreRequest
         return response
 
     def process_exception(self, request, exception, spider):
-        # Called when a download handler or a process_request()
-        # (from other downloader middleware) raises an exception.
-
-        # Must either:
-        # - return None: continue processing this exception
-        # - return a Response object: stops process_exception() chain
-        # - return a Request object: stops process_exception() chain
         pass
 
-    def connect(self):
-        name = "宽带连接"
-        username = self.username
-        password = self.password
-        cmd_str = "rasdial %s %s %s" % (name, username, password)
-        res = os.system(cmd_str)
-        if res == 0:
-            print("连接成功")
-            return "成功"
-        else:
-            print("连接失败")
-            return "失败"
-
-    def disconnect(self):
-        name = "宽带连接"
-        cmdstr = "rasdial %s /disconnect" % name
-        os.system(cmdstr)
-        print('断开成功')
-
-    def huan_ip(self):
-
-        # 断开网络
-        self.disconnect()
-        # 开始拨号
-        a = self.connect()
-        return a
 
 class HostDownloaderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -542,27 +416,98 @@ class HostDownloaderMiddleware(object):
         return None
 
     def process_response(self, request, response, spider):
-        # Called with the response returned from the downloader.
-
-        # Must either;
-        # - return a Response object
-        # - return a Request objectip_c
-        # - or raise IgnoreRequest
         return response
 
     def process_exception(self, request, exception, spider):
-        # Called when a download handler or a process_request()
-        # (from other downloader middleware) raises an exception.
-
-        # Must either:
-        # - return None: continue processing this exception
-        # - return a Response object: stops process_exception() chain
-        # - return a Request object: stops process_exception() chain
         pass
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
 
+class DaZhongDianPingDownloaderMiddleware(object):
+    # Not all methods need to be defined. If a method is not defined,
+    # scrapy acts as if the downloader middleware does not modify the
+    # passed objects.
+    def __init__(self,crawler):
+        self.num = 0#请求的数量
+        self.crawler = crawler
+        settings = crawler.settings
+        self.prame = None#请求中需要实时带的参数
+        self.chang_ip = settings.get("CHANGE_IP_NUM")#ip有关的参数
+        username = settings.get("USER_NAME")
+        password = settings.get("PASSWORD")
+        location_test = settings.get("LOCATION_TEST")
+        self.IP = IpChange(username,password)
+        self.IP.change_prame = types.MethodType(self.change_prame, self.IP)  # 将函数run,添加到p1的对象里面。对象里添加函数的方法。
+        self.IP.prame_state = True
+        self.IP.location_test = location_test
+
+
+    def change_prame(self,self1):
+        self.prame = self.get_sign1()
+        if self.prame:
+            return 1
+
+
+    def get_sign1(self):#参数的具体获得
+        url = "https://m.dianping.com/hangzhou/ch10"
+        headers = '''Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3
+        Accept-Encoding: gzip, deflate, br
+        Accept-Language: zh-CN,zh;q=0.9
+        Cache-Control: no-cache
+        Connection: keep-alive
+        Host: m.dianping.com
+        Pragma: no-cache
+        Sec-Fetch-Mode: navigate
+        Sec-Fetch-Site: none
+        Upgrade-Insecure-Requests: 1
+        User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1'''
+        try:
+            req = requests.get(url=url, headers=headers_todict(headers))
+            headers_rep = req.headers
+            set_cookiesstr = headers_rep.get("set-cookie","")
+            set_cookies = reqhead_split(set_cookiesstr)
+            if set_cookies:
+                return set_cookies
+        except Exception as e:
+            pass
+
+    def request_change(self,request):
+        randomstr = ""
+        for i in range(20):
+            randomstr += random.choice("0123456789qazwsxedcrfvtgbyhnujmikolp")
+        # cookies_dict = {"_hc.v":self.prame.get("_hc.v")}
+        cookies_dict = self.prame.copy()
+        # cookies_dict["_lxsdk_s"]="172554ab5d4-cc7-89c-1f7%7C%7C1"
+        cookies_dict["logan_session_token"] = randomstr
+        cookies_dict["logan_custom_report"] = ""
+        cookeis = dict_to_cookiesstr(cookies_dict)
+        request.headers["Cookie"] = cookeis
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler)
+
+    def process_request(self, request, spider):
+        if spider.name == "dianping":
+            self.num += 1
+            if self.num % self.chang_ip == 1:#换ip，换参数
+                self.crawler.engine.pause()
+                ##换ip
+                state = self.IP.change_ipandprame()
+                if state:
+                    self.crawler.engine.unpause()
+                else:
+                    print("ip，参数切换错误：引擎停止")
+                    self.crawler.engine.close()
+            self.request_change(request)
+        return None
+
+    def process_response(self, request, response, spider):
+        return response
+
+    def process_exception(self, request, exception, spider):
+        pass
 
 class UpdatetimeMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -578,22 +523,9 @@ class UpdatetimeMiddleware(object):
         request._set_body(data)
 
     def process_response(self, request, response, spider):
-        # Called with the response returned from the downloader.
-
-        # Must either;
-        # - return a Response object
-        # - return a Request objectip_c
-        # - or raise IgnoreRequest
         return response
 
     def process_exception(self, request, exception, spider):
-        # Called when a download handler or a process_request()
-        # (from other downloader middleware) raises an exception.
-
-        # Must either:
-        # - return None: continue processing this exception
-        # - return a Response object: stops process_exception() chain
-        # - return a Request object: stops process_exception() chain
         pass
 
 class ProcessAllExceptionMiddleware(object):
@@ -623,3 +555,62 @@ class ProcessAllExceptionMiddleware(object):
 
         # 打印出未捕获到的异常
         print('not contained exception: %s' % exception)
+
+class IpChange():
+    def __init__(self,username,password):
+        self.username = username
+        self.password = password
+        self.prame_state = False
+        self.location_test = False
+
+
+    def connect(self):
+        name = "宽带连接"
+        username = self.username
+        password = self.password
+        cmd_str = "rasdial %s %s %s" % (name, username, password)
+        res = os.system(cmd_str)
+        if res == 0:
+            print("连接成功")
+            return 1
+        else:
+            print("连接失败")
+            return 0
+
+    def disconnect(self):
+        name = "宽带连接"
+        cmdstr = "rasdial %s /disconnect" % name
+        os.system(cmdstr)
+        print('断开成功')
+
+    def huan_ip(self):
+        if self.location_test:#本地测试不考虑ip变化
+            return 1
+        else:
+            # 断开网络
+            self.disconnect()
+            # 开始拨号
+            state = self.connect()
+            return state
+
+    def change_ipandprame(self):
+        print("换ip换参数")
+        big_change = 0
+        while big_change < 5:
+            ip_num = 0
+            while ip_num < 5:
+                time.sleep(2)
+                ip_num += 1
+                state = self.huan_ip()
+                if state:
+                    if self.prame_state:
+                        prame_state = self.change_prame()
+                        if prame_state:
+                            return 1#需要变参数时，参数状态为1
+                    else:
+                        return 1#只需要变参数
+            time.sleep(60)
+            big_change += 1
+
+    def change_prame(self):
+        raise NotImplementedError

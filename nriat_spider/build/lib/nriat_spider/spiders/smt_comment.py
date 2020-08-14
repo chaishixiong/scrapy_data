@@ -5,6 +5,8 @@ from nriat_spider.items import GmWorkItem
 from tools.tools_r.header_tool import headers_todict
 import re
 import time
+from scrapy.utils.reqser import request_to_dict
+from scrapy_redis import picklecompat
 
 
 class SmtCommentSpider(RedisSpider):
@@ -12,8 +14,9 @@ class SmtCommentSpider(RedisSpider):
     allowed_domains = ['aliexpress.com']
     start_urls = ['https://www.aliexpress.com']
     redis_key = "smt_comment:start_url"
+    error_key = "smt_comment:error_url"
     custom_settings={
-        "CHANGE_IP_NUM":500
+        "CHANGE_IP_NUM":200,"CONCURRENT_REQUESTS":6
     }
 
     current_mouth = time.localtime(time.time()).tm_mon#这里获取当前的月份
@@ -22,20 +25,18 @@ class SmtCommentSpider(RedisSpider):
     mouth_dict = { x.upper():y for x,y in mouth_dict1.items()}
     # print(mouth_dict)
 
-    def start_requests(self):
-        url = "http://www.baidu.com"
-        yield scrapy.Request(url, callback=self.seed_request,dont_filter=True, method="GET")
-
-    def seed_request(self,response):
+    def make_requests_from_url(self, url):
+    #     url = "http://www.baidu.com"
+    #     yield scrapy.Request(url, callback=self.seed_request,dont_filter=True, method="GET")
+    #
+    # def seed_request(self,response):
         page = ""
         currentPage = "1"
-        with open(r"X:\数据库\速卖通\{速卖通_商品浙江}[卖家id,商品id].txt","r",encoding="utf-8") as f:
-            for i in f:
-                data = i.strip().split(",")
-                ownerMemberId = data[0]
-                productId = data[1]
-                request = self.request(ownerMemberId,productId,page,currentPage)
-                yield request
+        data = url.strip().split(",")
+        ownerMemberId = data[0]
+        productId = data[1]
+        request = self.request(ownerMemberId,productId,page,currentPage)
+        return request
 
     def request(self,ownerMemberId,productId,page,currentPage):
         url = "https://feedback.aliexpress.com/display/productEvaluation.htm"
@@ -140,11 +141,19 @@ class SmtCommentSpider(RedisSpider):
             request.meta["try_num"] = try_num
             return request
         else:
-            item_e = GmWorkItem()
-            item_e["error_id"] = 1
-            for i in kwargs:
-                item_e[i] = kwargs[i]
-            return item_e
+            request = rsp.request
+            request.meta["try_num"] = 0
+            obj = request_to_dict(request, self)
+            data = picklecompat.dumps(obj)
+            try:
+                self.server.lpush(self.error_key, data)
+            except Exception as e:
+                print(e)
+            # item_e = GmWorkItem()
+            # item_e["error_id"] = 1
+            # for i in kwargs:
+            #     item_e[i] = kwargs[i]
+            # return item_e
 
     def get_headers(self,type="1"):
         if type == "1":

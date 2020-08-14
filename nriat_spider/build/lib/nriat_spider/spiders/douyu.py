@@ -63,13 +63,28 @@ class DouyuSpider(RedisSpider):
         rid = response.meta.get("rid")
         c2name = response.meta.get("c2name")
         ol = response.meta.get("ol")
-        match = re.search('author-name',response.text)
+        match = re.search('upId|roomId',response.text)
         if match:
-            name = response.css(".author-name").xpath("./span/text()").get()
-            auth = response.css(".up-des").xpath("./text()").getall()
-            video = auth[0]
-            plays = auth[1]
-            fans = auth[2]
+            name = ""
+            video = ""
+            plays = ""
+            fans = ""
+            name_match = re.search('name: "([^"]*)"',response.text)
+            if name_match:
+                name = name_match.group(1)
+            try:
+                name = name.encode('utf-8').decode('unicode_escape')
+            except Exception as e:
+                pass
+            video_match = re.search("upNum: '([^']*)'",response.text)
+            if video_match:
+                video = video_match.group(1)
+            plays_match = re.search("playCount: '([^']*)'",response.text)
+            if plays_match:
+                plays = plays_match.group(1)
+            fans_match = re.search("subscribeNum: '([^']*)'",response.text)
+            if fans_match:
+                fans = fans_match.group(1)
             item = GmWorkItem()
             item["up_id"] = up_id
             item["rid"] = rid
@@ -79,12 +94,10 @@ class DouyuSpider(RedisSpider):
             item["video"] = video
             item["plays"] = plays
             item["fans"] = fans
-            print(item)
             yield item
         else:
             try_result = self.try_again(response,url=response.url)
             yield try_result
-
 
 
     def try_again(self,rsp,**kwargs):

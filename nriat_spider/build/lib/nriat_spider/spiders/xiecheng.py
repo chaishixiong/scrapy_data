@@ -4,7 +4,9 @@ from scrapy_redis.spiders import RedisSpider
 from nriat_spider.items import GmWorkItem
 from tools.tools_r.header_tool import headers_todict
 import re,json
-
+import redis
+from scrapy.utils.reqser import request_to_dict
+from scrapy_redis import picklecompat
 
 class XiechengSpider(RedisSpider):
     name = 'xiecheng'
@@ -13,7 +15,8 @@ class XiechengSpider(RedisSpider):
     redis_key = "xiecheng:start_url"
     custom_settings = {"CONCURRENT_REQUESTS":2,"DOWNLOADER_MIDDLEWARES":{'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 20,
                        'nriat_spider.middlewares.UpdatetimeMiddleware': 23,'nriat_spider.middlewares.IpChangeDownloaderMiddleware': 21,}}
-
+    server = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
+    error_key = "xiecheng:error_url"
 
     def start_requests(self):
         url = "https://hotels.ctrip.com/Domestic/Tool/AjaxGetCitySuggestion.aspx"
@@ -136,11 +139,19 @@ class XiechengSpider(RedisSpider):
             request.meta["try_num"] = try_num
             return request
         else:
-            item_e = GmWorkItem()
-            item_e["error_id"] = 1
-            for i in kwargs:
-                item_e[i] = kwargs[i]
-            return item_e
+            request = rsp.request
+            request.meta["try_num"] = 0
+            obj = request_to_dict(request, self)
+            data = picklecompat.dumps(obj)
+            try:
+                self.server.lpush(self.error_key,data)
+            except Exception as e:
+                print(e)
+            # item_e = GmWorkItem()
+            # item_e["error_id"] = 1
+            # for i in kwargs:
+            #     item_e[i] = kwargs[i]
+            # return item_e
 
     def get_headers(self,type = 1):
         if type == 1:
