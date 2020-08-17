@@ -6,6 +6,7 @@ nriat_spider/extension.py
 nriat_spider/items.py
 nriat_spider/middlewares.py
 nriat_spider/pipelines.py
+nriat_spider/seed_split.py
 nriat_spider/settings.py
 nriat_spider/spiders/__init__.py
 nriat_spider/spiders/alibabgj_shop.py
@@ -44,6 +45,7 @@ project.egg-info/top_level.txt
 tools/__init__.py
 tools/tools_d/__init__.py
 tools/tools_d/encryption.py
+tools/tools_d/redis_lock.py
 tools/tools_d/tools_base.py
 tools/tools_d/tools_process.py
 tools/tools_r/__init__.py
