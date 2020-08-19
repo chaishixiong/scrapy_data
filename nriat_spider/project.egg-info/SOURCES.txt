@@ -12,7 +12,6 @@ nriat_spider/spiders/__init__.py
 nriat_spider/spiders/alibabgj_shop.py
 nriat_spider/spiders/allegro_good.py
 nriat_spider/spiders/allegro_goodlist.py
-nriat_spider/spiders/data_shua.py
 nriat_spider/spiders/dazhongdianping.py
 nriat_spider/spiders/douyu.py
 nriat_spider/spiders/ebayinfo_goods.py
@@ -37,6 +36,7 @@ nriat_spider/unuse/anjuke_new.py
 nriat_spider/unuse/anjuke_newgoods.py
 nriat_spider/unuse/anjuke_zu.py
 nriat_spider/unuse/anjuku_old.py
+nriat_spider/unuse/data_shua.py
 project.egg-info/PKG-INFO
 project.egg-info/SOURCES.txt
 project.egg-info/dependency_links.txt

@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 class file_split():
     split_num = 100000#默认分割设置为100000行
-    def __init__(self,file,path=r"D:\spider_seed"):#修改为项目的默认地址
+    def __init__(self,file,path=r"W:\spider_seed"):#修改为项目的默认地址
         self.path = path
         self.file = file
         self.file_path = Path(self.path)/self.file

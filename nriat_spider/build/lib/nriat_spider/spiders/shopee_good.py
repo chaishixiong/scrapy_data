@@ -15,6 +15,7 @@ class ShopeeGoodSpider(RedisSpider):
     redis_key = "shopee_good:start_url"
     shop_url = 'https://shopee.com.my/api/v2/shop/get?shopid={}'
     error_key = "shopee_good:error_url"
+    custom_settings = {"CHANGE_IP_NUM":50}
 
     def start_requests(self):
         url = "http://www.baidu.com"

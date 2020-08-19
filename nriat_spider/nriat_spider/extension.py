@@ -36,6 +36,7 @@ class redisSpiderSmartIdleExensions():
         self.lock_acquire = 5
         self.lock_outtime = 120
         self.seed_exists = None
+        self.key_request = ""
 
         # self.request_count = settings.getint('MYEXT_ITEMCOUNT', 1000)
         # self.request_num = 0
@@ -73,11 +74,11 @@ class redisSpiderSmartIdleExensions():
         return ext
 
     def spider_opened(self, spider):
+        self.key_request = "{}:requests".format(spider.name)
         logger.info("opened spider {} redis spider Idle, Continuous idle limit： {}".format(spider.name, self.idle_number))
         self.seed_exists = os.path.exists(Path(self.path_base)/"{}.txt".format(spider.name))
         if self.seed_exists:
-            self.key_start = "{}:start_url".format(spider.name)
-            self.key_request = "{}:requests".format(spider.name)
+            # self.key_start = "{}:start_url".format(spider.name)
             spider.log("opened spider %s" % spider.name)
             file = spider.name + ".txt"
             self.path_split = Path(self.path_base) / (spider.name + "_split")
