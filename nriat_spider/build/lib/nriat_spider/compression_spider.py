@@ -5,12 +5,11 @@ from collections import defaultdict
 import time
 class SpiderFileMerge(object):
 
-    def __init__(self,save_path,spider_name=None):
+    def __init__(self,save_path):
         self.save_path = Path(save_path)
-        self.spider_name = spider_name
 
-    def merge_file(self):
-        path_spider = self.save_path / (self.spider_name + "-data")
+    def merge_file(self,spider_name):
+        path_spider = self.save_path / (spider_name + "-data")
         sortfile_dict = self._get_folder(path_spider)#合并
         for i in sortfile_dict:
             file_list = self._folder_tofile(sortfile_dict.get(i))
@@ -26,7 +25,7 @@ class SpiderFileMerge(object):
                 path_spider = self.save_path / spider_name
                 sortfile_dict = self._get_folder(path_spider)  # 合并
                 for i in sortfile_dict:
-                    file_list = self._folder_tofile(sortfile_dict.get(i),".txt")
+                    file_list = self._folder_tofile(sortfile_dict.get(i),"_ok.txt")
                     file_lists.extend(file_list)
         if file_lists:
             self._zip7(file_lists)#压缩
@@ -87,10 +86,8 @@ if __name__=="__main__":
     while True:
         result = a.compression()
         print("----------一轮扫描压缩结束---------------")
-        # if not result:
-        #     time.sleep(600)
-        break
+        if not result:
+            time.sleep(600)
+
     # a.merge_file()
-    # b = Path("D:\spider_data")/"softtime_detail-data"
-    # c = a._get_folder(b)
-    # print(1)
+

@@ -18,18 +18,22 @@ class AllegroSpider(RedisSpider):
     custom_settings = {"CHANGE_IP_NUM":20,"CONCURRENT_REQUESTS":4,"REDIRECT_ENABLED":True}
     error_key = "allegro_good:error_url"
 
-    def start_requests(self):
-        headers = self.get_headers(1)
-        url = "https://www.baidu.com"
-        yield scrapy.Request(url=url, method="GET",callback=self.seed_requests, headers=headers,dont_filter=True)
+    # def start_requests(self):
+    #     headers = self.get_headers(1)
+    #     url = "https://www.baidu.com"
+    #     yield scrapy.Request(url=url, method="GET",callback=self.seed_requests, headers=headers,dont_filter=True)
+    #
+    # def seed_requests(self, response):
+    #     # url = "https://allegro.pl/oferta/zestaw-czyszczacy-9w1-do-aparatu-optyki-sciereczka-8906638228"
+    #     headers = self.get_headers(1)
+    #     with open(self.seed_file,"r",encoding="utf-8") as f:
+    #         for i in f:
+    #             url = i.strip()
+    #             yield scrapy.Request(url=url, method="GET", headers=headers)
 
-    def seed_requests(self, response):
-        # url = "https://allegro.pl/oferta/zestaw-czyszczacy-9w1-do-aparatu-optyki-sciereczka-8906638228"
-        headers = self.get_headers(1)
-        with open(self.seed_file,"r",encoding="utf-8") as f:
-            for i in f:
-                url = i.strip()
-                yield scrapy.Request(url=url, method="GET", headers=headers)
+    def make_requests_from_url(self, i):
+        url = i.strip()
+        yield scrapy.Request(url=url, method="GET", headers=self.get_headers(1))
 
     def parse(self,response):
         youxiao = re.search("(About seller|Sprzedający)", response.text)

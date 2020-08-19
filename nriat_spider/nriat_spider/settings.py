@@ -84,7 +84,7 @@ DOWNLOADER_MIDDLEWARES = {
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
 EXTENSIONS = {
    # 'scrapy.extensions.telnet.TelnetConsole': None,
-   'nriat_spider.extension.redisSpiderSmartIdleExensions': 500,
+    'nriat_spider.extension.redisSpiderSmartIdleExensions': 500,
 }
 # 'gm_work.middlewares.HostDownloaderMiddleware': 500,
 
@@ -176,13 +176,12 @@ MYSQL_PASSWD = 'Data227or8Dev715#'
 
 #extend相关的东西
 MYEXT_ENABLED = True      # 开启redis结束的扩展
-IDLE_NUMBER = 36          # 配置空闲持续时间单位为 360个 ，一个时间单位为5s
-IDLE_CHECK = 3
-SEED_FILE_PATH = "D:\spider_seed"
-SPLIT_NUM = 10000
+IDLE_NUMBER = 36           # 配置空闲持续时间单位为 360个 ，一个时间单位为5s
+IDLE_CHECK = 3#3个idle检查一次
+SEED_FILE_PATH = "W:\scrapy_seed"
+SPLIT_NUM = 50000
 GET_LOCK_TIME = 5
 LOCK_ADDREQUESTS_OUTTIME = 120
-
 # Redis集群地址
 # REDIS_MASTER_NODES = [
 #     {"host": "192.168.0.230", "port": "6379"},

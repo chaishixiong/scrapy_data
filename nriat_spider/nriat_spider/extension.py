@@ -36,6 +36,7 @@ class redisSpiderSmartIdleExensions():
         self.lock_acquire = 5
         self.lock_outtime = 120
         self.seed_exists = None
+        self.key_request = ""
 
         # self.request_count = settings.getint('MYEXT_ITEMCOUNT', 1000)
         # self.request_num = 0
@@ -73,15 +74,15 @@ class redisSpiderSmartIdleExensions():
         return ext
 
     def spider_opened(self, spider):
+        self.key_request = "{}:requests".format(spider.name)
         logger.info("opened spider {} redis spider Idle, Continuous idle limit： {}".format(spider.name, self.idle_number))
         self.seed_exists = os.path.exists(Path(self.path_base)/"{}.txt".format(spider.name))
         if self.seed_exists:
-            self.key_start = "{}:start_url".format(spider.name)
-            self.key_request = "{}:requests".format(spider.name)
+            # self.key_start = "{}:start_url".format(spider.name)
             spider.log("opened spider %s" % spider.name)
             file = spider.name + ".txt"
             self.path_split = Path(self.path_base) / (spider.name + "_split")
-            result_lock_open = self.lock.acquire_lock(spider.name+"open",0,0)#建立scrapy文件切分的分布锁
+            result_lock_open = self.lock.acquire_lock(spider.name+"open",self.lock_acquire,0)#建立scrapy文件切分的分布锁
             if result_lock_open:
                 split_t = file_split(file=file, path=self.path_base)
                 split_t.change_num(self.split_num)
@@ -89,18 +90,16 @@ class redisSpiderSmartIdleExensions():
                 if result:
                     spider.log("%s spider split success" % spider.name)
                 else:
-                    self.lock.release_lock(spider.name+"open",result_lock_open)
-                    raise("分割文本错误")
-            if not self.server.exists(self.key_request):
-                result_lock = self.lock.acquire_lock(spider.name,self.lock_acquire,self.lock_outtime)#加锁
-                if result_lock:
-                    update_state, file_name = self.check_seed(path=self.path_split)
-                    if update_state:
-                        self.file_request(key=self.key_request,spider=spider, file_name=file_name)#这里将一个文件内容增加进去
-                    else:
-                        self.lock.release_lock(spider.name,result_lock)#如果没有文件了，把锁解了
-                        self.file_over = True
-
+                    self.lock.release_lock(spider.name+"open",result_lock_open)#这里应该有问题
+                    raise Exception("分割文本错误")
+            result_lock = self.lock.acquire_lock(spider.name,self.lock_acquire,self.lock_outtime)#加锁
+            if result_lock:
+                update_state, file_name = self.check_seed(path=self.path_split)
+                if update_state:
+                    self.file_request(key=self.key_request,spider=spider, file_name=file_name)#这里将一个文件内容增加进去
+                else:
+                    self.lock.release_lock(spider.name,result_lock)#如果没有文件了，把锁解了
+                    self.file_over = True
 
     def spider_closed(self, spider):
         #关闭之后将pipeline中的文件合并
@@ -110,10 +109,10 @@ class redisSpiderSmartIdleExensions():
     def spider_idle(self, spider):#改为判断是否有key
         self.idle_count += 1  # 空闲计数
         self.idle_list.append(time.time())  # 每次触发 spider_idle时，记录下触发时间戳
-        idle_list_len = len(self.idle_list)  # 获取当前已经连续触发的次数
+        # idle_list_len = len(self.idle_list)  # 获取当前已经连续触发的次数
         if self.seed_exists:
             # 判断 redis 中是否存在关键key, 如果key被用完，则key就会不存在
-            if idle_list_len >= self.idle_check and not self.server.exists(self.key_request) and not self.file_over:
+            if len(self.idle_list) >= self.idle_check and not spider.server.exists(self.key_request) and not self.file_over:
                 #种子文件检测更新
                 update_state, file_name = self.check_seed(path=self.path_split)
                 if update_state:
@@ -126,9 +125,9 @@ class redisSpiderSmartIdleExensions():
                     # if result_lock:
                     #     self.lock.release_lock(spider.name,result_lock)
                     self.file_over = True
-        if idle_list_len >= 2 and self.idle_list[-1] - self.idle_list[-2] > 6:#间隔大于6秒，说明有任务在跑，参数初始化
+        if len(self.idle_list) >= 2 and self.idle_list[-1] - self.idle_list[-2] > 6:#间隔大于6秒，说明有任务在跑，参数初始化
             self.idle_list = [self.idle_list[-1]]
-        if idle_list_len > self.idle_number and not self.server.exists(self.key_request) and self.file_over:
+        if len(self.idle_list) > self.idle_number and not spider.server.exists(self.key_request) and self.file_over:
             # 连续触发的次数达到配置次数后关闭爬虫
             logger.info('\n continued idle number exceed {} Times'
                         '\n meet the idle shutdown conditions, will close the reptile operation'
@@ -148,7 +147,7 @@ class redisSpiderSmartIdleExensions():
     def file_request(self,key,spider,file_name,):
         do_filename = file_name.replace(".txt","do.txt")
         os.rename(self.path_split/file_name,self.path_split/do_filename)
-        print(time.time())
+        # print(time.time())
         with open(self.path_split/do_filename,"r",encoding="utf-8") as f:
             for i in f:
                 url = i.strip()
@@ -157,7 +156,7 @@ class redisSpiderSmartIdleExensions():
                 self._request_queue(key,spider,request)
             else:
                 print("更新一个种子队列到队列中")
-        print(time.time())
+        # print(time.time())
         end_filename = file_name.replace(".txt","end.txt")
         os.rename(self.path_split/do_filename,self.path_split/end_filename)
 
