@@ -84,7 +84,7 @@ DOWNLOADER_MIDDLEWARES = {
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
 EXTENSIONS = {
    # 'scrapy.extensions.telnet.TelnetConsole': None,
-   'nriat_spider.extension.redisSpiderSmartIdleExensions': 500,
+    'nriat_spider.extension.redisSpiderSmartIdleExensions': 500,
 }
 # 'gm_work.middlewares.HostDownloaderMiddleware': 500,
 
@@ -154,9 +154,9 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"#指定使用scrapy-re
 # 广度优先:"scrapy_redis.queue.FifoQueue  深度优先:"SpiderPriorityQueue LifoQueue  优先： PriorityQueue
 SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.LifoQueue'
 REDIS_START_URLS_AS_SET = True
-REDIS_HOST = '127.0.0.1'
-REDIS_PORT = 6379
-REDIS_PARAMS = {'password': 'nriat.123456',}
+REDIS_HOST = '192.168.0.226'
+REDIS_PORT = 5208
+# REDIS_PARAMS = {'password': 'nriat.123456',}
 SCHEDULER_PERSIST = True# 是否在关闭时候保留原来的调度器和去重记录，True=保留，False=清空
 
 # 密码登陆
@@ -176,13 +176,12 @@ MYSQL_PASSWD = 'Data227or8Dev715#'
 
 #extend相关的东西
 MYEXT_ENABLED = True      # 开启redis结束的扩展
-IDLE_NUMBER = 36          # 配置空闲持续时间单位为 360个 ，一个时间单位为5s
-IDLE_CHECK = 3
-SEED_FILE_PATH = "D:\spider_seed"
-SPLIT_NUM = 10000
+IDLE_NUMBER = 36           # 配置空闲持续时间单位为 360个 ，一个时间单位为5s
+IDLE_CHECK = 3#3个idle检查一次
+SEED_FILE_PATH = "W:\scrapy_seed"
+SPLIT_NUM = 50000
 GET_LOCK_TIME = 5
 LOCK_ADDREQUESTS_OUTTIME = 120
-
 # Redis集群地址
 # REDIS_MASTER_NODES = [
 #     {"host": "192.168.0.230", "port": "6379"},
@@ -243,9 +242,7 @@ elif get_ip() in ["9.148","9.149","9.170","9.171","9.172","9.173"]:
 else:
     USER_NAME = "057762355594"#9.100 9.99 9.98 0.56 0.59
     PASSWORD = "045805"
-
-ip = get_ip()
-if ip == "0.226"or ip == "7.144":
+if get_ip() =="0.226":
     LOCATION_TEST = True
 
 #rasdial ADSL 057762355594 045805

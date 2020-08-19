@@ -13,20 +13,26 @@ class FruugoSpider(RedisSpider):
     start_urls = ['https://www.fruugo.co.uk']
     redis_key = "fruugo_good:start_url"
     custom_settings = {"REDIRECT_ENABLED":True,"CHANGE_IP_NUM":200,"CONCURRENT_REQUESTS":4}
-    file_name = r"X:\数据库\fruugo\fruugo_sort-data_合并.txt_去重.txt[F3].txt"
+    # file_name = r"X:\数据库\fruugo\fruugo_sort-data_合并.txt_去重.txt[F3].txt"
     error_key = "fruugo_good:error_url"
 
-    def start_requests(self):
-        url = "https://www.baidu.com"
-        headers = self.get_headers(1)
-        yield scrapy.Request(url=url,callback=self.seed_process,method="GET",headers=headers,dont_filter=True)#
+    # def start_requests(self):
+    #     url = "https://www.baidu.com"
+    #     headers = self.get_headers(1)
+    #     yield scrapy.Request(url=url,callback=self.seed_process,method="GET",headers=headers,dont_filter=True)#
+    #
+    # def seed_process(self,response):
+    #     headers = self.get_headers(1)
+    #     if response.status == 200:
+    #         for i in open(self.file_name,"r",encoding="utf-8"):
+    #             url = i.strip()
+    #             yield scrapy.Request(url=url, method="GET", headers=headers)
 
-    def seed_process(self,response):
-        headers = self.get_headers(1)
-        if response.status == 200:
-            for i in open(self.file_name,"r",encoding="utf-8"):
-                url = i.strip()
-                yield scrapy.Request(url=url, method="GET", headers=headers)
+    def make_requests_from_url(self, i):
+        i = i.strip()
+        url = "https://{}.alibaba.com/contactinfo.html".format(i)
+        meta = {"key": i}
+        return scrapy.Request(url=url, method="GET", headers=self.get_headers(1), meta=meta)
 
     def parse(self, response):
         youxiao = re.search("(product-title|no longer available)",response.text)

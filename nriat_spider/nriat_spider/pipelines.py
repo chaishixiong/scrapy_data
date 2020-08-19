@@ -16,6 +16,7 @@ class NriatSpiderPipeline(object):
     def process_item(self, item, spider):
         return item
 
+
 class JsonWriterPipeline(object):
     def __init__(self,settings):
         self.settings = settings

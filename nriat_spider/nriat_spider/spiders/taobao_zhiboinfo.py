@@ -20,15 +20,11 @@ class SmtGoodsSpider(RedisSpider):
     next_seed = "taobao_goodsid:start_url"
 
 
-    def start_requests(self):
-        yield scrapy.Request(url="https://www.baidu.com",dont_filter=True)
-
-    def parse(self,response):
-        for i in self.from_file(self.seeds_file):
-            sellerid = i.strip()
-            url = "https://{}.taobao.com".format(sellerid)
-            meta = {"seller_id":sellerid}
-            yield scrapy.Request(url=url,callback=self.get_detail,method="GET",meta=meta,dont_filter=True)
+    def make_requests_from_url(self, url):
+        sellerid = url.strip()
+        url = "https://{}.taobao.com".format(sellerid)
+        meta = {"seller_id":sellerid}
+        return scrapy.Request(url=url,callback=self.get_detail,method="GET",meta=meta,dont_filter=True)
 
     def get_detail(self, response):
         seller_id = response.meta.get("seller_id")

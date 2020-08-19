@@ -14,7 +14,7 @@ class AllegroSpider(RedisSpider):
     allowed_domains = ['allegro.pl']
     start_urls = ['http://allegro.pl/']
     redis_key = "allegro_goodlist:start_url"
-    # file_name = r"W:\scrapy_web\allegro_sort-data_合并.txt[F3].txt"
+    # file_name = r"W:\scrapy_xc\allegro_sort-data_合并.txt[F3].txt"
     error_key = "allegro_goodlist:error_url"
     custom_settings = {"REDIRECT_ENABLED":True}
 
@@ -88,42 +88,40 @@ class AllegroSpider(RedisSpider):
             try:
                 data = json.loads(data_str)
                 items = data.get("items")
-                items_groups = items.get("itemsGroups",{})
-                for i in items_groups:
-                    good_list = i.get("items")
-                    for j in good_list:
-                        good_id = j.get("id")
-                        good_url = j.get("url","")
-                        good_url = good_url.replace(r"\u002F","/")
-                        location = j.get("location",{})
-                        city = location.get("city")
-                        title = j.get("title",{})
-                        good_name = title.get("text")
-                        status = j.get("type")
-                        price_json = j.get("price",{})
-                        normal = price_json.get("normal",{})
-                        price = normal.get("amount")
-                        sales = j.get("bidInfo")
-                        seller = j.get("seller",{})
-                        shop_id = seller.get("id")
-                        shop_super = seller.get("superSeller")
-                        shop_name = seller.get("login")
-                        sort_id = j.get("categoryPath")
-                        item = GmWorkItem()
-                        item["key"] = url
-                        item["page_num"] = page_num
-                        item["id"] = good_id
-                        item["goods_url"] = good_url
-                        item["city"] = city
-                        item["good_name"] = good_name
-                        item["status"] = status
-                        item["price"] = price
-                        item["sales_num"] = sales
-                        item["shop_id"] = shop_id
-                        item["shop_super"] = shop_super
-                        item["shop_name"] = shop_name
-                        item["sort_id"] = sort_id
-                        yield item
+                elements = items.get("elements",{})
+                for j in elements:
+                    good_id = j.get("id")
+                    good_url = j.get("url","")
+                    good_url = good_url.replace(r"\u002F","/")
+                    location = j.get("location",{})
+                    city = location.get("city")
+                    title = j.get("title",{})
+                    good_name = title.get("text")
+                    status = j.get("type")
+                    price_json = j.get("price",{})
+                    normal = price_json.get("normal",{})
+                    price = normal.get("amount")
+                    sales = j.get("bidInfo")
+                    seller = j.get("seller",{})
+                    shop_id = seller.get("id")
+                    shop_super = seller.get("superSeller")
+                    shop_name = seller.get("login")
+                    sort_id = j.get("categoryPath")
+                    item = GmWorkItem()
+                    item["key"] = url
+                    item["page_num"] = page_num
+                    item["id"] = good_id
+                    item["goods_url"] = good_url
+                    item["city"] = city
+                    item["good_name"] = good_name
+                    item["status"] = status
+                    item["price"] = price
+                    item["sales_num"] = sales
+                    item["shop_id"] = shop_id
+                    item["shop_super"] = shop_super
+                    item["shop_name"] = shop_name
+                    item["sort_id"] = sort_id
+                    yield item
             except:
                 try_result = self.try_again(response, url=url,type=2)
                 yield try_result
