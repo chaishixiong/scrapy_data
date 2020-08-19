@@ -14,7 +14,7 @@ class AllegroSpider(RedisSpider):
     allowed_domains = ['allegro.pl']
     start_urls = ['http://allegro.pl/']
     redis_key = "allegro_goodlist:start_url"
-    # file_name = r"W:\scrapy_xc\allegro_sort-data_合并.txt[F3].txt"
+    # file_name = r"W:\scrapy_web\allegro_sort-data_合并.txt[F3].txt"
     error_key = "allegro_goodlist:error_url"
     custom_settings = {"REDIRECT_ENABLED":True}
 

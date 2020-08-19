@@ -35,7 +35,6 @@ class KilimallSpiderSpider(RedisSpider):
         # meta：传 i 数据
         id = response.meta.get("i")
         # print(host)
-
         res = response.text
         try:
             obj = json.loads(res)
