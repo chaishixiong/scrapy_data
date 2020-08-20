@@ -50,6 +50,7 @@ class TaobaoCookies(AccountPool):
         headers = self.get_taobao_headers(2)
         cookies = self.cookies_generate()#这里获取cookies
         print(cookies)
+
         headers["cookie"] = "t={}; _m_h5_tk={}; _m_h5_tk_enc={}".format(cookies.get("t"),cookies.get("_m_h5_tk"),cookies.get("_m_h5_tk_enc"))
         time_now = str(int(time.time() * 1000))
         appkey = "12574478"
@@ -57,6 +58,7 @@ class TaobaoCookies(AccountPool):
         sign_token = cookies.get("_m_h5_tk").split("_")[0]
         sign = get_taobaosign(time=time_now, appKey=appkey, data=data, token=sign_token)
         url = "https://h5api.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?jsv=2.4.8&appKey={}&t={}&sign={}&api=mtop.taobao.detail.getdetail&v=6.0&dataType=jsonp&ttid=2017%40taobao_h5_6.6.0&AntiCreep=true&type=jsonp&callback=mtopjsonp2&data=%7B%22itemNumId%22%3A%22{}%22%7D"
+
         for i in [571593162298,533586591285,603317363880,571173957477,579082299554,575655313402,600723610325,582374782414,575099916775,600943798844,556875305433]:
             headers["referer"] = "https://detail.m.tmall.com/item.htm?id={}".format(i)
             url_q = url.format(appkey, time_now, sign, i)

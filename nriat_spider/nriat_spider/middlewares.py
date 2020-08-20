@@ -25,6 +25,7 @@ from scrapy.core.downloader.handlers.http11 import TunnelError
 from scrapy.http.response.html import HtmlResponse
 import datetime
 import random
+from tools.tools_p.taobao_cookies_pool import TaobaoCookies
 
 
 class NriatSpiderSpiderMiddleware(object):
@@ -614,3 +615,56 @@ class IpChange():
 
     def change_prame(self):
         raise NotImplementedError
+
+class TaobaoGoodsDownloaderMiddleware(IpChangeDownloaderMiddleware):
+    def __init__(self,crawler):
+        super().__init__(crawler)
+        self.key = "taobao_cookies"
+        self.taobao_cookies_p = TaobaoCookies(self.key)
+        self.taobao_cookies_p.add_cookies()
+        self.error_num = 0
+        self.headers = self.taobao_cookies_p.get_taobao_headers(2)
+        self.url = "https://h5api.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?jsv=2.4.8&appKey={}&t={}&sign={}&api=mtop.taobao.detail.getdetail&v=6.0&dataType=jsonp&ttid=2017%40taobao_h5_6.6.0&AntiCreep=true&type=jsonp&callback=mtopjsonp2&data=%7B%22itemNumId%22%3A%22{}%22%7D"
+        self.appkey = "12574478"
+
+    def process_request(self, request, spider):
+        change_num = self.chang_ip#这里设1000
+        goods_id = request.meta.get("goods_id")
+        self.num += 1
+        if self.num ==1:
+            self.change_parame(goods_id)
+        if self.num % change_num == 1 or self.error_num > 100:#这里的100
+            self.crawler.engine.pause()
+            self.change_parame(goods_id)
+            if self.error_num <= 100:
+                self.error_num = 0
+            state = self.IP.change_ipandprame()
+            if state:
+                self.crawler.engine.unpause()
+            else:
+                print("ip切换错误：引擎停止")
+                self.crawler.engine.close()
+
+        if self.error_num > 100:
+            self.taobao_cookies_p.rem_l(self.key,self.data)
+            self.error_num = 0
+            # self.change_parame(goods_id)
+
+        #請求部分
+        self.headers["referer"] = "https://detail.m.tmall.com/item.htm?id={}".format(goods_id)
+        url_q = self.url.format(self.appkey, self.time_now, self.sign, goods_id)
+        request._set_url(url_q)
+        for i in self.headers:
+            request.headers[i] = self.headers[i]
+
+        return None
+
+    def change_parame(self,goods_id):#无需网络
+        self.cookies, self.data = self.taobao_cookies_p.get_cookies()
+        self.headers["cookie"] = "t={}; _m_h5_tk={}; _m_h5_tk_enc={}".format(self.cookies.get("t"),
+                                                                             self.cookies.get("_m_h5_tk"),
+                                                                             self.cookies.get("_m_h5_tk_enc"))
+        self.time_now = str(int(time.time() * 1000))
+        self.data = '{{"itemNumId":"{}"}}'.format(goods_id)
+        self.sign_token = self.cookies.get("_m_h5_tk").split("_")[0]
+        self.sign = get_taobaosign(time=self.time_now, appKey=self.appkey, data=self.data, token=self.sign_token)
