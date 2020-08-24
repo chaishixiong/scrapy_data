@@ -72,6 +72,11 @@ class GmWorkItem(scrapy.Item):
     show_free_shipping = scrapy.Field()
     json_data = scrapy.Field()
 
+    company = scrapy.Field()
+
+    legal_person = scrapy.Field()
+    area = scrapy.Field()
+
     status = scrapy.Field()
     trade = scrapy.Field()
     type = scrapy.Field()

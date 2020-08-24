@@ -21,29 +21,28 @@ class SmtGoodsSpider(RedisSpider):
         "SCHEDULER_QUEUE_CLASS" : 'scrapy_redis.queue.LifoQueue'
         # "DOWNLOAD_DELAY" : 20,
     }
-    seeds_file = r"X:\数据库\速卖通\{1_2_有效店铺id}[店铺ID,卖家ID].txt"
+    # seeds_file = r"X:\数据库\速卖通\{1_2_有效店铺id}[店铺ID,卖家ID].txt"
     # seeds_file = r"W:\scrapy_xc\smt_goodsid_order-error_合并.txt"
     server1 = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
     error_key = "smt_goodsid_order:error_url"
 
-    def start_requests(self):
-        yield scrapy.Request(url="https://www.baidu.com",dont_filter=True)
-
-    def parse(self,response):
-        for i in self.from_file(self.seeds_file):
-            i = i.strip()
-            num = 1
-            field_num = i.count(",")
-            if field_num == 2:
-                num = i.split(",")[2]
-            if "," in i:
-                shop_id = i.split(",")[0]
-
-                seller_id = i.split(",")[1]
-                url = "https://{}.aliexpress.com".format(shop_id)
-                meta = {"page_num":num,"shop_id":shop_id,"seller_id":seller_id}
-
-                yield scrapy.Request(url=url,callback=self.get_detail,method="GET",meta=meta)
+    # def start_requests(self):
+    #     yield scrapy.Request(url="https://www.baidu.com",dont_filter=True)
+    #
+    # def parse(self,response):
+    #     for i in self.from_file(self.seeds_file):
+    def make_requests_from_url(self, i):
+        i = i.strip()
+        num = 1
+        field_num = i.count(",")
+        if field_num == 2:
+            num = i.split(",")[2]
+        if "," in i:
+            shop_id = i.split(",")[0]
+            seller_id = i.split(",")[1]
+            url = "https://{}.aliexpress.com".format(shop_id)
+            meta = {"page_num":num,"shop_id":shop_id,"seller_id":seller_id}
+            return scrapy.Request(url=url,callback=self.get_detail,method="GET",meta=meta)
 
     def get_detail(self, response):
         meta = response.meta
@@ -114,10 +113,10 @@ class SmtGoodsSpider(RedisSpider):
             try_result = self.try_again(response)
             yield try_result
 
-    def from_file(self,file_name):
-        with open(file_name,"r",encoding="utf-8") as f:
-            for i in f:
-                yield i
+    # def from_file(self,file_name):
+    #     with open(file_name,"r",encoding="utf-8") as f:
+    #         for i in f:
+    #             yield i
 
     def try_again(self,rsp):
         max_num = 5

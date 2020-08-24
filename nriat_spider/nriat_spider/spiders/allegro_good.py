@@ -14,7 +14,7 @@ class AllegroSpider(RedisSpider):
     allowed_domains = ['allegro.pl']
     start_urls = ['http://allegro.pl/']
     redis_key = "allegro_good:start_url"
-    seed_file = r"X:\数据库\allegro\{allegro_shopid}[good_url].txt"
+    # seed_file = r"X:\数据库\allegro\{allegro_shopid}[good_url].txt"
     custom_settings = {"CHANGE_IP_NUM":20,"CONCURRENT_REQUESTS":4,"REDIRECT_ENABLED":True}
     error_key = "allegro_good:error_url"
 
@@ -33,7 +33,7 @@ class AllegroSpider(RedisSpider):
 
     def make_requests_from_url(self, i):
         url = i.strip()
-        yield scrapy.Request(url=url, method="GET", headers=self.get_headers(1))
+        return scrapy.Request(url=url, method="GET", headers=self.get_headers(1))
 
     def parse(self,response):
         youxiao = re.search("(About seller|Sprzedający)", response.text)

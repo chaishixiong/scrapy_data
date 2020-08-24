@@ -41,7 +41,7 @@ class SpiderFileMerge(object):
                     f.write(f1.read())
 
     @staticmethod
-    def _get_folder(data_spider,match_str = r"\d([^-\d]+?)\d"):#区分不同爬取各步骤的文件夹返回defaultdict
+    def _get_folder(data_spider,match_str = "\d([^-\d]+?)\d+$"):#区分不同爬取各步骤的文件夹返回defaultdict
         sort_dict = defaultdict(list)
         for i in os.listdir(data_spider):
             match = re.search(match_str,i)

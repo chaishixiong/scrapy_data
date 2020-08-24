@@ -20,17 +20,16 @@ class AlibabgjSpider(RedisSpider):
     user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.87 Safari/537.36''')
     error_key = "alibabgj_shop:error_key"
     file_name = r"X:\数据库\阿里巴巴国际站\alibaba_shopid_all.txt"
-    def start_requests(self):
-        url = "https://www.baidu.com"
-        yield scrapy.Request(url=url, method="GET",callback=self.seed_requests, headers=self.headers,dont_filter=True)
-
-    def seed_requests(self,response):
-        with open(self.file_name,"r",encoding="utf-8") as f:
-            for i in f:
-                i = i.strip()
-                url = "https://{}.alibaba.com/contactinfo.html".format(i)
-                meta = {"key":i}
-                yield scrapy.Request(url=url,method="GET",headers=self.headers,meta=meta)
+    # def start_requests(self):
+    #     url = "https://www.baidu.com"
+    #     yield scrapy.Request(url=url, method="GET",callback=self.seed_requests, headers=self.headers,dont_filter=True)
+    #
+    # def seed_requests(self,response):
+    def make_requests_from_url(self, i):
+            i = i.strip()
+            url = "https://{}.alibaba.com/contactinfo.html".format(i)
+            meta = {"key":i}
+            return scrapy.Request(url=url,method="GET",headers=self.headers,meta=meta)
 
     def parse(self, response):
         youxiao = re.search("(HTTP 404|Information|302 Found)",response.text)

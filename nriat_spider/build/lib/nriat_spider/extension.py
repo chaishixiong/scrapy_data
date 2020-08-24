@@ -92,14 +92,15 @@ class redisSpiderSmartIdleExensions():
                 else:
                     self.lock.release_lock(spider.name+"open",result_lock_open)#这里应该有问题
                     raise Exception("分割文本错误")
-            result_lock = self.lock.acquire_lock(spider.name,self.lock_acquire,self.lock_outtime)#加锁
-            if result_lock:
-                update_state, file_name = self.check_seed(path=self.path_split)
-                if update_state:
-                    self.file_request(key=self.key_request,spider=spider, file_name=file_name)#这里将一个文件内容增加进去
-                else:
-                    self.lock.release_lock(spider.name,result_lock)#如果没有文件了，把锁解了
-                    self.file_over = True
+            if not spider.server.exists(self.key_request):
+                result_lock = self.lock.acquire_lock(spider.name,self.lock_acquire,self.lock_outtime)#加锁
+                if result_lock:
+                    update_state, file_name = self.check_seed(path=self.path_split)
+                    if update_state:
+                        self.file_request(key=self.key_request,spider=spider, file_name=file_name)#这里将一个文件内容增加进去
+                    else:
+                        self.lock.release_lock(spider.name,result_lock)#如果没有文件了，把锁解了
+                        self.file_over = True
 
     def spider_closed(self, spider):
         #关闭之后将pipeline中的文件合并

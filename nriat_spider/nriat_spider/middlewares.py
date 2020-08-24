@@ -26,6 +26,7 @@ from scrapy.http.response.html import HtmlResponse
 import datetime
 import random
 from tools.tools_p.taobao_cookies_pool import TaobaoCookies
+# from multiprocessing import Process
 
 
 class NriatSpiderSpiderMiddleware(object):
@@ -113,7 +114,7 @@ class SmtPrameDownloaderMiddleware(object):
         self.num = 0
         self.crawler = crawler
         settings = crawler.settings
-        self.chang_ip = settings.get("CHANGE_IP_NUM")
+        self.change_ip = settings.get("CHANGE_IP_NUM")
         self.username = settings.get("USER_NAME")
         self.password = settings.get("PASSWORD")
 
@@ -145,7 +146,7 @@ class SmtPrameDownloaderMiddleware(object):
             seller_id = meta.get("seller_id")
             page_num = meta.get("page_num")
             self.num += 1
-            if self.num % self.chang_ip == 1:
+            if self.num % self.change_ip == 1:
                 print("换ip换参数")
                 self.crawler.engine.pause()
                 ip_num = 0
@@ -244,7 +245,7 @@ class TaobaoZhiboDownloaderMiddleware(object):
         self.crawler = crawler
         settings = crawler.settings
         self.cookies_dict = None
-        self.chang_ip = settings.get("CHANGE_IP_NUM")#ip有关的参数
+        self.change_ip = settings.get("CHANGE_IP_NUM")#ip有关的参数
         username = settings.get("USER_NAME")
         password = settings.get("PASSWORD")
         location_test = settings.get("LOCATION_TEST")
@@ -303,7 +304,7 @@ class TaobaoZhiboDownloaderMiddleware(object):
         if (spider.name == "taobao_zhiboinfo" or spider.name == "taobao_goodsid") and not request.url.endswith("baidu.com"):
             meta = request.meta
             self.num += 1
-            if self.num % self.chang_ip == 1:
+            if self.num % self.change_ip == 1:
                 self.crawler.engine.pause()
                 state = self.IP.change_ipandprame()
                 if state:
@@ -364,7 +365,7 @@ class IpChangeDownloaderMiddleware(object):
         self.crawler = crawler
         settings = crawler.settings
         self.num = 0
-        self.chang_ip = settings.get("CHANGE_IP_NUM")#ip有关的参数
+        self.change_ip = settings.get("CHANGE_IP_NUM")#ip有关的参数
         username = settings.get("USER_NAME")
         password = settings.get("PASSWORD")
         self.IP = IpChange(username,password)
@@ -377,7 +378,7 @@ class IpChangeDownloaderMiddleware(object):
         return cls(crawler)
 
     def process_request(self, request, spider):
-        change_num = self.chang_ip
+        change_num = self.change_ip
         self.num += 1
         if self.num % change_num == 1:
             self.crawler.engine.pause()
@@ -434,7 +435,7 @@ class DaZhongDianPingDownloaderMiddleware(object):
         self.crawler = crawler
         settings = crawler.settings
         self.prame = None#请求中需要实时带的参数
-        self.chang_ip = settings.get("CHANGE_IP_NUM")#ip有关的参数
+        self.change_ip = settings.get("CHANGE_IP_NUM")#ip有关的参数
         username = settings.get("USER_NAME")
         password = settings.get("PASSWORD")
         location_test = settings.get("LOCATION_TEST")
@@ -492,7 +493,7 @@ class DaZhongDianPingDownloaderMiddleware(object):
     def process_request(self, request, spider):
         if spider.name == "dianping":
             self.num += 1
-            if self.num % self.chang_ip == 1:#换ip，换参数
+            if self.num % self.change_ip == 1:#换ip，换参数
                 self.crawler.engine.pause()
                 ##换ip
                 state = self.IP.change_ipandprame()
@@ -617,6 +618,7 @@ class IpChange():
         raise NotImplementedError
 
 class TaobaoGoodsDownloaderMiddleware(IpChangeDownloaderMiddleware):
+    #添加cookies 换 cookies 删cookies
     def __init__(self,crawler):
         super().__init__(crawler)
         self.key = "taobao_cookies"
@@ -626,17 +628,22 @@ class TaobaoGoodsDownloaderMiddleware(IpChangeDownloaderMiddleware):
         self.headers = self.taobao_cookies_p.get_taobao_headers(2)
         self.url = "https://h5api.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?jsv=2.4.8&appKey={}&t={}&sign={}&api=mtop.taobao.detail.getdetail&v=6.0&dataType=jsonp&ttid=2017%40taobao_h5_6.6.0&AntiCreep=true&type=jsonp&callback=mtopjsonp2&data=%7B%22itemNumId%22%3A%22{}%22%7D"
         self.appkey = "12574478"
+        self.error_limit = 100
+        self.taobao_cp_limit = 200
+        self.ckeck_limit = 200
+        self.old_data = None
+        self.data = None
 
     def process_request(self, request, spider):
-        change_num = self.chang_ip#这里设1000
+        change_num = self.change_ip#这里设1000
         goods_id = request.meta.get("goods_id")
         self.num += 1
-        if self.num ==1:
+        if self.num == 1:
             self.change_parame(goods_id)
-        if self.num % change_num == 1 or self.error_num > 100:#这里的100
+        if self.num % change_num == 0 or self.error_num > self.error_limit:#这里的100
             self.crawler.engine.pause()
             self.change_parame(goods_id)
-            if self.error_num <= 100:
+            if self.error_num <= self.error_limit:
                 self.error_num = 0
             state = self.IP.change_ipandprame()
             if state:
@@ -645,8 +652,13 @@ class TaobaoGoodsDownloaderMiddleware(IpChangeDownloaderMiddleware):
                 print("ip切换错误：引擎停止")
                 self.crawler.engine.close()
 
+        if self.num % self.ckeck_limit == 0 and len(self.taobao_cookies_p) < self.taobao_cp_limit:
+            self.taobao_add(self.key)
+            # p = Process(target=self.taobao_add, args=(self.key,))
+            # p.start()
+
         if self.error_num > 100:
-            self.taobao_cookies_p.rem_l(self.key,self.data)
+            self.taobao_cookies_p.rem_l(self.key,self.old_data)
             self.error_num = 0
             # self.change_parame(goods_id)
 
@@ -660,6 +672,7 @@ class TaobaoGoodsDownloaderMiddleware(IpChangeDownloaderMiddleware):
         return None
 
     def change_parame(self,goods_id):#无需网络
+        self.old_data = self.data
         self.cookies, self.data = self.taobao_cookies_p.get_cookies()
         self.headers["cookie"] = "t={}; _m_h5_tk={}; _m_h5_tk_enc={}".format(self.cookies.get("t"),
                                                                              self.cookies.get("_m_h5_tk"),
@@ -668,3 +681,14 @@ class TaobaoGoodsDownloaderMiddleware(IpChangeDownloaderMiddleware):
         self.data = '{{"itemNumId":"{}"}}'.format(goods_id)
         self.sign_token = self.cookies.get("_m_h5_tk").split("_")[0]
         self.sign = get_taobaosign(time=self.time_now, appKey=self.appkey, data=self.data, token=self.sign_token)
+
+    def process_response(self, request, response, spider):
+        if "调用成功" not in response.text:
+            self.error_num += 1
+        return response
+
+
+    @staticmethod
+    def taobao_add(taobao_cookies):
+        taobao_cookies_p = TaobaoCookies(taobao_cookies)
+        taobao_cookies_p.add_cookies()

@@ -14,7 +14,7 @@ class SmtGoodsSpider(RedisSpider):
     seeds_file = r"X:\数据库\淘宝直播\taobao_id.txt"
     custom_settings = {"DOWNLOADER_MIDDLEWARES": {'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 20,
         'nriat_spider.middlewares.TaobaoZhiboDownloaderMiddleware': 21,},
-                       "CONCURRENT_REQUESTS":1}
+                       "CONCURRENT_REQUESTS":1,"CHANGE_IP_NUM":1000}
     server1 = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
     # server1 = redis.Redis(host='127.0.0.1', port=6379, decode_responses=True,password="nriat.123456")
     next_seed = "taobao_goodsid:start_url"
