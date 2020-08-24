@@ -21,8 +21,7 @@ class SmtGoodsSpider(RedisSpider):
         "SCHEDULER_QUEUE_CLASS" : 'scrapy_redis.queue.LifoQueue'
         # "DOWNLOAD_DELAY" : 20,
     }
-    # seeds_file = r"X:\数据库\速卖通\{1_2_有效店铺id}[店铺ID,卖家ID].txt"
-    # seeds_file = r"W:\scrapy_xc\smt_goodsid_order-error_合并.txt"
+
     server1 = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
     error_key = "smt_goodsid_order:error_url"
 
