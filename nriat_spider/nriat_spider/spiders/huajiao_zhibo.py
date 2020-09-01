@@ -14,10 +14,7 @@ class HuajiaoSpider(RedisSpider):
     allowed_domains = ['huajiao.com']
     start_urls = ['']
     redis_key = "huajiao_zhibo:start_url"
-    custom_settings = {        'CONCURRENT_REQUESTS': 2,
-        "EXTENSIONS": {'nriat_spider.extension.redisSpiderSmartIdleCloseExensions': 500},
-                               "CHANGE_IP_NUM": 100
-                               }
+    custom_settings = {'CONCURRENT_REQUESTS': 2,"CHANGE_IP_NUM": 100}
 
     def start_requests(self):
         time_new = str(int(time.time()*1000))
