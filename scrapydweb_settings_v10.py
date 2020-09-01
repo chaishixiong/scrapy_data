@@ -128,7 +128,7 @@ PRIVATEKEY_FILEPATH = ''
 # ScrapydWeb is able to locate projects in the SCRAPY_PROJECTS_DIR,
 # so that you can simply select a project to deploy, instead of packaging it in advance.
 # e.g. 'C:/Users/username/myprojects' or '/home/username/myprojects'
-SCRAPY_PROJECTS_DIR = 'E:\Program Files\scrapyd_web'
+SCRAPY_PROJECTS_DIR = 'E:\Program Files\spider_express'
 
 
 ############################## Scrapyd ########################################

@@ -73,7 +73,6 @@ class GmWorkItem(scrapy.Item):
     json_data = scrapy.Field()
 
     company = scrapy.Field()
-
     legal_person = scrapy.Field()
     area = scrapy.Field()
 

@@ -29,10 +29,11 @@ class SmtGoodsSpider(RedisSpider):
         return scrapy.Request(url=url,callback=self.get_detail,method="GET",meta=meta)
 
     def get_detail(self, response):
-        item_s = GmWorkItem()
-        item_s["source_code"] = response.text
-        yield item_s
+
         if "调用成功" in response.text:
+            item_s = GmWorkItem()
+            item_s["source_code"] = response.text
+            yield item_s
             match = re.search('"itemId":"([0-9]*)',response.text)
             goods_id = ""
             if match:

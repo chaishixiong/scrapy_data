@@ -29,10 +29,8 @@ class FruugoSpider(RedisSpider):
     #             yield scrapy.Request(url=url, method="GET", headers=headers)
 
     def make_requests_from_url(self, i):
-        i = i.strip()
-        url = "https://{}.alibaba.com/contactinfo.html".format(i)
-        meta = {"key": i}
-        return scrapy.Request(url=url, method="GET", headers=self.get_headers(1), meta=meta)
+        url = i.strip()
+        return scrapy.Request(url=url, method="GET", headers=self.get_headers(1))
 
     def parse(self, response):
         youxiao = re.search("(product-title|no longer available)",response.text)

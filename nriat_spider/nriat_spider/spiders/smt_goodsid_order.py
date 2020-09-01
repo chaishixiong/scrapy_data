@@ -65,10 +65,10 @@ class SmtGoodsSpider(RedisSpider):
                 id = i.get("id")
                 orders = i.get("orders")
                 piecePriceMoney = i.get("piecePriceMoney")
-                maxPrice= piecePriceMoney.get("amount")
+                maxPrice= piecePriceMoney.get("amount",0)
                 salePrice = i.get("salePrice")
                 # maxPrice = salePrice.get("maxPrice")
-                minPrice = salePrice.get("minPrice")
+                minPrice = salePrice.get("minPrice",0)
                 pcDetailUrl = i.get("pcDetailUrl")
                 subject = i.get("subject")
                 averageStar = i.get("averageStar")#评分
@@ -82,8 +82,8 @@ class SmtGoodsSpider(RedisSpider):
                 item["total_num"] = totle_num
                 item["id"] = id
                 item["orders"] = orders
-                item["max_price"] = maxPrice
-                item["min_price"] = minPrice
+                item["max_price"] = min(minPrice,maxPrice)
+                item["min_price"] = max(minPrice,maxPrice)
                 item["goods_url"] = pcDetailUrl
                 item["average_score"] = averageStar
                 item["goods_name"] = subject

@@ -58,7 +58,6 @@ class NriatSpiderSpiderMiddleware(object):
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
 
-
 class NriatSpiderDownloaderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the downloader middleware does not modify the
@@ -104,7 +103,6 @@ class NriatSpiderDownloaderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
-
 
 class SmtPrameDownloaderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -235,7 +233,6 @@ class SmtPrameDownloaderMiddleware(object):
         a = self.connect()
         return a
 
-
 class TaobaoZhiboDownloaderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the downloader middleware does not modify the
@@ -356,7 +353,6 @@ class TaobaoZhiboDownloaderMiddleware(object):
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
 
-
 class IpChangeDownloaderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the downloader middleware does not modify the
@@ -371,7 +367,6 @@ class IpChangeDownloaderMiddleware(object):
         self.IP = IpChange(username,password)
         location_test = settings.get("LOCATION_TEST")
         self.IP.location_test = location_test
-
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -395,7 +390,6 @@ class IpChangeDownloaderMiddleware(object):
 
     def process_exception(self, request, exception, spider):
         pass
-
 
 class HostDownloaderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -444,12 +438,10 @@ class DaZhongDianPingDownloaderMiddleware(object):
         self.IP.prame_state = True
         self.IP.location_test = location_test
 
-
     def change_prame(self,self1):
         self.prame = self.get_sign1()
         if self.prame:
             return 1
-
 
     def get_sign1(self):#参数的具体获得
         url = "https://m.dianping.com/hangzhou/ch10"
@@ -678,9 +670,9 @@ class TaobaoGoodsDownloaderMiddleware(IpChangeDownloaderMiddleware):
                                                                              self.cookies.get("_m_h5_tk"),
                                                                              self.cookies.get("_m_h5_tk_enc"))
         self.time_now = str(int(time.time() * 1000))
-        self.data = '{{"itemNumId":"{}"}}'.format(goods_id)
+        self.data1 = '{{"itemNumId":"{}"}}'.format(goods_id)
         self.sign_token = self.cookies.get("_m_h5_tk").split("_")[0]
-        self.sign = get_taobaosign(time=self.time_now, appKey=self.appkey, data=self.data, token=self.sign_token)
+        self.sign = get_taobaosign(time=self.time_now, appKey=self.appkey, data=self.data1, token=self.sign_token)
 
     def process_response(self, request, response, spider):
         if "调用成功" not in response.text:
@@ -692,3 +684,81 @@ class TaobaoGoodsDownloaderMiddleware(IpChangeDownloaderMiddleware):
     def taobao_add(taobao_cookies):
         taobao_cookies_p = TaobaoCookies(taobao_cookies)
         taobao_cookies_p.add_cookies()
+
+# class TaobaoZhiboDownloaderMiddleware(IpChangeDownloaderMiddleware):
+#     #添加cookies 换 cookies 删cookies
+#     def __init__(self,crawler):
+#         super().__init__(crawler)
+#         self.key = "taobao_zhibo_cookies"
+#         self.taobao_cookies_p = TaobaoCookies(self.key)
+#         self.taobao_cookies_p.add_cookies()
+#         self.error_num = 0
+#         self.headers = self.taobao_cookies_p.get_taobao_headers(2)
+#         self.url = "https://h5api.m.taobao.com/h5/mtop.mediaplatform.video.livedetail.itemlist/1.0/?jsv=2.4.0&appKey={}&t={}&sign={}&AntiCreep=true&api=mtop.mediaplatform.video.livedetail.itemlist&v=1.0&type=jsonp&dataType=jsonp&callback=mtopjsonp4&data=%7B%22type%22%3A%220%22%2C%22liveId%22%3A%22{}%22%2C%22creatorId%22%3A%22{}%22%7D"
+#         self.appkey = "12574478"
+#         self.error_limit = 10
+#         self.taobao_cp_limit = 200#cookies池限制
+#         self.ckeck_limit = 200
+#         self.old_data = None
+#         self.data = None
+#
+#     def process_request(self, request, spider):
+#         change_num = self.change_ip#这里设1000
+#         # goods_id = request.meta.get("goods_id")
+#         live_id = request.meta.get("live_id")
+#         seller_id = request.meta.get("seller_id")
+#         self.num += 1
+#         # if self.num == 1:
+#         #     self.change_parame()
+#         if self.num % change_num == 1 or self.error_num > self.error_limit:#这里的100
+#             self.crawler.engine.pause()
+#             self.change_parame()
+#             if self.error_num <= self.error_limit:
+#                 self.error_num = 0
+#             state = self.IP.change_ipandprame()
+#             if state:
+#                 self.crawler.engine.unpause()
+#             else:
+#                 print("ip切换错误：引擎停止")
+#                 self.crawler.engine.close()
+#
+#         if self.num % self.ckeck_limit == 0 and len(self.taobao_cookies_p) < self.taobao_cp_limit:
+#             self.taobao_add(self.key)
+#             # p = Process(target=self.taobao_add, args=(self.key,))
+#             # p.start()
+#
+#         if self.error_num > self.error_limit:
+#             self.taobao_cookies_p.rem_l(self.key,self.old_data)
+#             self.error_num = 0
+#             # self.change_parame(goods_id)
+#
+#         #請求部分
+#         self.headers["referer"] = "https://h5.m.taobao.com/taolive/video.html?id={}".format(live_id)
+#         self.time_now = str(int(time.time() * 1000))
+#         self.data1 = '{{"type":"0","liveId":"{}","creatorId":"{}"}}'.format(live_id,seller_id)
+#         self.sign_token = self.cookies.get("_m_h5_tk").split("_")[0]
+#         self.sign = get_taobaosign(time=self.time_now, appKey=self.appkey, data=self.data1, token=self.sign_token)
+#         url_q = self.url.format(self.appkey, self.time_now, self.sign, live_id,seller_id)
+#         request._set_url(url_q)
+#         for i in self.headers:
+#             request.headers[i] = self.headers[i]
+#         return None
+#
+#     def change_parame(self):#无需网络
+#         self.old_data = self.data
+#         self.cookies, self.data = self.taobao_cookies_p.get_cookies()
+#         self.headers["cookie"] = "t={}; _m_h5_tk={}; _m_h5_tk_enc={}".format(self.cookies.get("t"),
+#                                                                              self.cookies.get("_m_h5_tk"),
+#                                                                              self.cookies.get("_m_h5_tk_enc"))
+#
+#
+#     def process_response(self, request, response, spider):
+#         if "调用成功" not in response.text:
+#             self.error_num += 1
+#         return response
+#
+#
+#     @staticmethod
+#     def taobao_add(taobao_cookies):
+#         taobao_cookies_p = TaobaoCookies(taobao_cookies)
+#         taobao_cookies_p.add_cookies()
