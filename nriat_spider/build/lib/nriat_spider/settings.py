@@ -154,9 +154,9 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"#指定使用scrapy-re
 # 广度优先:"scrapy_redis.queue.FifoQueue  深度优先:"SpiderPriorityQueue LifoQueue  优先： PriorityQueue
 SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.LifoQueue'
 REDIS_START_URLS_AS_SET = True
-REDIS_HOST = '192.168.0.226'
-REDIS_PORT = 5208
-# REDIS_PARAMS = {'password': 'nriat.123456',}
+REDIS_HOST = '127.0.0.1'
+REDIS_PORT = 6379
+REDIS_PARAMS = {'password': 'nriat.123456',}
 SCHEDULER_PERSIST = True# 是否在关闭时候保留原来的调度器和去重记录，True=保留，False=清空
 
 # 密码登陆
