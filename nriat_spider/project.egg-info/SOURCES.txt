@@ -44,8 +44,6 @@ project.egg-info/SOURCES.txt
 project.egg-info/dependency_links.txt
 project.egg-info/entry_points.txt
 project.egg-info/top_level.txt
-test/__init__.py
-test/scrapyd_test.py
 tools/__init__.py
 tools/tools_d/Bloomfilter.py
 tools/tools_d/__init__.py
