@@ -3,6 +3,7 @@ import os
 import re
 from collections import defaultdict
 import time
+
 class SpiderFileMerge(object):
 
     def __init__(self,save_path):
@@ -15,20 +16,31 @@ class SpiderFileMerge(object):
             file_list = self._folder_tofile(sortfile_dict.get(i))
             self._merge_file(self.save_path / (i + ".txt"), file_list)#合并
 
-    def compression(self):
+    def compression(self,compression_str="_ok.txt"):
         folders = os.listdir(self.save_path)
-        file_lists = []
+        compression_file = None
         for folder in folders:
-            match = re.search("(.*?-code)$",folder)
-            if match:
-                spider_name = match.group(1)
-                path_spider = self.save_path / spider_name
-                sortfile_dict = self._get_folder(path_spider)  # 合并
-                for i in sortfile_dict:
-                    file_list = self._folder_tofile(sortfile_dict.get(i),"_ok.txt")
-                    file_lists.extend(file_list)
+            result = self.compression_file(folder,compression_str)
+            if result:
+                compression_file = True
+        if compression_file:
+            return True
+        else:
+            return False
+
+
+    def compression_file(self,path_name,compression_str):
+        file_lists = []
+        match = re.search("(.*?-code)$", path_name)
+        if match:
+            spider_name = match.group(1)
+            path_spider = self.save_path / spider_name
+            sortfile_dict = self._get_folder(path_spider)  # 合并
+            for i in sortfile_dict:
+                file_list = self._folder_tofile(sortfile_dict.get(i), compression_str)
+                file_lists.extend(file_list)
         if file_lists:
-            self._zip7(file_lists)#压缩
+            self._zip7(file_lists)  # 压缩
             return True
         else:
             return False

@@ -12,6 +12,7 @@ nriat_spider/spiders/__init__.py
 nriat_spider/spiders/alibabgj_shop.py
 nriat_spider/spiders/allegro_good.py
 nriat_spider/spiders/allegro_goodlist.py
+nriat_spider/spiders/amazon_shopgood.py
 nriat_spider/spiders/baidu_spider.py
 nriat_spider/spiders/dazhongdianping.py
 nriat_spider/spiders/douyu.py
@@ -32,13 +33,17 @@ nriat_spider/spiders/smt_goodsid_order.py
 nriat_spider/spiders/taobao_goods.py
 nriat_spider/spiders/taobao_goodsid.py
 nriat_spider/spiders/taobao_zhiboinfo.py
+nriat_spider/spiders/wenzhou_teach.py
 nriat_spider/spiders/xiecheng.py
+nriat_spider/spiders/zip_code.py
 nriat_spider/unuse/__init__.py
 nriat_spider/unuse/anjuke_new.py
 nriat_spider/unuse/anjuke_newgoods.py
 nriat_spider/unuse/anjuke_zu.py
 nriat_spider/unuse/anjuku_old.py
 nriat_spider/unuse/data_shua.py
+nriat_spider/x_script/__init__.py
+nriat_spider/x_script/mitmproxy_spider.py
 project.egg-info/PKG-INFO
 project.egg-info/SOURCES.txt
 project.egg-info/dependency_links.txt

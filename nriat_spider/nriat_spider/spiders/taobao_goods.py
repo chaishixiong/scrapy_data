@@ -5,6 +5,7 @@ import re
 from scrapy_redis.spiders import RedisSpider
 from scrapy.utils.reqser import request_to_dict
 from scrapy_redis import picklecompat
+import time
 
 
 class SmtGoodsSpider(RedisSpider):
@@ -29,10 +30,11 @@ class SmtGoodsSpider(RedisSpider):
         return scrapy.Request(url=url,callback=self.get_detail,method="GET",meta=meta)
 
     def get_detail(self, response):
-
+        key = response.meta.get("goods_id")
         if "调用成功" in response.text:
+            time_s = time.strftime("%Y/%m/%d %H:%M:%S",time.localtime())
             item_s = GmWorkItem()
-            item_s["source_code"] = response.text
+            item_s["source_code"] = "##{}##采集时间:{};".format(key,time_s)+response.text
             yield item_s
             match = re.search('"itemId":"([0-9]*)',response.text)
             goods_id = ""

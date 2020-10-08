@@ -246,4 +246,4 @@ if get_ip() =="0.226":
     LOCATION_TEST = True
 
 #rasdial ADSL 057762355592 928858
-#rasdial 宽带连接 057762355594 045805
+#rasdial 宽带连接 057764473605 744523

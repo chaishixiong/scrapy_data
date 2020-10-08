@@ -163,8 +163,8 @@ class TaobaoZhiboCookies(AccountPool):
         return headers
 
 if __name__=="__main__":
-    a = TaobaoCookies("taobao_zhibo_cookies")
-    for i in range(50):
+    a = TaobaoCookies("taobao_cookies")
+    for i in range(20):
         a.add_cookies()
         print(len(a))
     # cookies,data = a.get_cookies()

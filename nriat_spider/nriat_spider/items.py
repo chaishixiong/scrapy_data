@@ -110,11 +110,8 @@ class GmWorkItem(scrapy.Item):
     category1 = scrapy.Field()
     catid_sub2 = scrapy.Field()
     category2 = scrapy.Field()
-    company = scrapy.Field()
     district = scrapy.Field()
-    legal_person = scrapy.Field()
     id_s = scrapy.Field()
-    area = scrapy.Field()
     categorys = scrapy.Field()
     freight = scrapy.Field()
     inventory = scrapy.Field()
@@ -194,7 +191,11 @@ class GmWorkItem(scrapy.Item):
     promo_statu = scrapy.Field()
     sales_vague = scrapy.Field()
     room_name = scrapy.Field()
-
+    labelx = scrapy.Field()
+    labely = scrapy.Field()
+    summary = scrapy.Field()
+    county = scrapy.Field()
+    town = scrapy.Field()
 
 class AmazonItem(scrapy.Item):
     url = scrapy.Field()

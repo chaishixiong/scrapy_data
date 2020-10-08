@@ -18,7 +18,7 @@ class AlibabgjSpider(RedisSpider):
     accept-language: zh-CN,zh;q=0.9
     upgrade-insecure-requests: 1
     user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.87 Safari/537.36''')
-    error_key = "alibabgj_shop:error_key"
+    error_key = "alibabgj_shop:error_url"
     file_name = r"X:\数据库\阿里巴巴国际站\alibaba_shopid_all.txt"
     # def start_requests(self):
     #     url = "https://www.baidu.com"
