@@ -16,10 +16,10 @@ class SmtGoodsSpider(RedisSpider):
     redis_key = "taobao_goods:start_url"
     custom_settings = {
         'CONCURRENT_REQUESTS': 1,
-        "DOWNLOAD_DELAY":0.2,
+        "DOWNLOAD_DELAY":0.3,
     "DOWNLOADER_MIDDLEWARES" : {'nriat_spider.middlewares.TaobaoGoodsDownloaderMiddleware': 20,
         'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 21,},
-        "CHANGE_IP_NUM":1000
+        "CHANGE_IP_NUM":200
     }
     error_key = "taobao_goods:error_url"
 

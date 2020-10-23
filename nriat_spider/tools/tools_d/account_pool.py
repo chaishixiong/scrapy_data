@@ -24,7 +24,7 @@ class AccountPool():
             print(e)
 
 
-    def cookies_generate(self):#用来生成cookies的生成方法
+    def cookies_generate(self,*args):#用来生成cookies的生成方法
         raise Exception("{} no cover".format(sys._getframe().f_code.co_name))
 
     def general_gennerate(self,*args):
