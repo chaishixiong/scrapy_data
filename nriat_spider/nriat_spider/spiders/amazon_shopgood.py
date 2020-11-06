@@ -37,9 +37,11 @@ upgrade-insecure-requests: 1'''
         url = "https://www.amazon.com/s?me={}&language=en_US".format(id)
         return scrapy.Request(url=url, method="GET", headers=headers_todict(self.headers),dont_filter=True,meta={"id":id,"proxy":"127.0.0.1:8080","first":True})
 
+
     def parse(self, response):
         youxiao = re.search("(s-result-list|checking your|search-results|general terms)",response.text)
         id = response.meta.get("id")
+
         first = response.meta.get("first")
         if youxiao:
             item_s = GmWorkItem()
@@ -50,6 +52,7 @@ upgrade-insecure-requests: 1'''
             match = re.search('"totalResultCount":(\d+)',response.text)
             if match:
                 goods_num = match.group(1)
+
             if first and goods_num:
                 page_num = int(int(goods_num)/16)+1 if int(goods_num)%16 else int(int(goods_num)/16)
                 page_num = 10 if page_num>10 else page_num
