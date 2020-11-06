@@ -23,7 +23,7 @@ NEWSPIDER_MODULE = 'nriat_spider.spiders'
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 4#并发
+CONCURRENT_REQUESTS = 3#并发
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
@@ -123,7 +123,7 @@ ITEM_PIPELINES = {#从低到高
 RETRY_ENABLED = False#重试
 RETRY_TIMES = 3
 #RETRY_HTTP_CODES=#遇到什么网络状态码进行重试默认[500, 502, 503, 504, 522, 524, 408]
-HTTPERROR_ALLOWED_CODES=[301,302,307,403,404,408,429,500, 502, 503, 504, 522, 524] #允许在此列表中的非200状态代码响应
+HTTPERROR_ALLOWED_CODES=[301,302,307,400,403,404,408,429,500, 502, 503, 504, 522, 524] #允许在此列表中的非200状态代码响应
 REDIRECT_ENABLED = False##重定向
 REDIRECT_MAX_TIMES = 5
 
