@@ -154,7 +154,7 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"#指定使用scrapy-re
 # 广度优先:"scrapy_redis.queue.FifoQueue  深度优先:"SpiderPriorityQueue LifoQueue  优先： PriorityQueue
 SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.LifoQueue'
 REDIS_START_URLS_AS_SET = True
-REDIS_HOST = '192.168.0.225'
+REDIS_HOST = '192.168.0.226'
 REDIS_PORT = 5208
 # REDIS_PARAMS = {'password': 'nriat.123456',}
 SCHEDULER_PERSIST = True# 是否在关闭时候保留原来的调度器和去重记录，True=保留，False=清空
@@ -221,11 +221,11 @@ def get_ip():
     if match:
         ip_num = match.group(1)
     return ip_num
-if get_ip() in ["9.10","9.42","9.127","9.128","10.101","10.102","10.103","10.104","10.105","10.106","10.100","9.97","9.95","9.122","9.68"]:
+if get_ip() in ["0.10","0.42","0.55","0.57","10.101","10.102","10.103","10.104","10.105","10.106","10.100","9.97","9.95","9.122","9.68"]:
     USER_NAME = "057762355592"
     PASSWORD = "928858"
 elif get_ip() == "9.123":
-    USER_NAME = "wzlcb57746616"
+    USER_NAME = "wzlce57746616"
     PASSWORD = "123456"
 elif get_ip() == "9.124":
     USER_NAME = "wzlcf57746616"
@@ -245,5 +245,5 @@ else:
 if get_ip() =="0.226":
     LOCATION_TEST = True
 
-#rasdial 宽带连接 wzlcg57746616 123456
-#rasdial ADSL 057764473605 744523
+#rasdial ADSL 057762355592 928858
+#rasdial 宽带连接 057764473605 744523

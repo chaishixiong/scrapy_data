@@ -21,7 +21,7 @@ class BaiduxinyongSpider(RedisSpider):
     custom_settings = {
         'SCHEDULER': "scrapy_redis.scheduler.Scheduler",
         'DUPEFILTER_CLASS': "scrapy_redis.dupefilter.RFPDupeFilter",
-        'REDIS_URL': 'redis://192.168.0.225:5208/4',
+        'REDIS_URL': 'redis://192.168.0.230:5208/4',
         'SCHEDULER_PERSIST': True,
         "CHANGE_IP_NUM": 200, "CONCURRENT_REQUESTS": 4
     }
@@ -30,7 +30,7 @@ class BaiduxinyongSpider(RedisSpider):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36'}
 
     def start_requests(self):
-        with open('X:\数据库\工商地址库\亚马逊\company_id_202010.txt_去重.txt', 'r', encoding='utf-8') as f:
+        with open('X:\数据库\工商地址库\亚马逊\company_id_202009.txt_去重.txt', 'r', encoding='utf-8') as f:
             for i in f:
                 i = i.replace('\n', '')
                 url_new = "https://aiqicha.baidu.com/s?q={}&t=0&fl=1&castk=LTE%3D".format(i)

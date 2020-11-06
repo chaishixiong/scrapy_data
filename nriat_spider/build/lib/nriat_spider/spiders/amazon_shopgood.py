@@ -34,30 +34,17 @@ accept-language: zh-CN,zh;q=0.9
 upgrade-insecure-requests: 1'''
     def make_requests_from_url(self,seed):
         id = seed.strip()
-        url = "https://www.amazon.com/s?me={}&language=en_US".format(id)
-        return scrapy.Request(url=url, method="GET", headers=headers_todict(self.headers),dont_filter=True,meta={"id":id,"proxy":"127.0.0.1:8080","first":True})
+        url = "https://www.amazon.com/s?me={}&&language=en_US".format(id)
+        return scrapy.Request(url=url, method="GET", headers=headers_todict(self.headers),dont_filter=True,meta={"id":id,"proxy":"127.0.0.1:8080"})#
 
     def parse(self, response):
         youxiao = re.search("(s-result-list|checking your|search-results|general terms)",response.text)
         id = response.meta.get("id")
-        first = response.meta.get("first")
         if youxiao:
-            item_s = GmWorkItem()
-            item_s["id"] = id
-            item_s["source_code"] = response.text
-            yield item_s
             goods_num = ""
             match = re.search('"totalResultCount":(\d+)',response.text)
             if match:
                 goods_num = match.group(1)
-            if first and goods_num:
-                page_num = int(int(goods_num)/16)+1 if int(goods_num)%16 else int(int(goods_num)/16)
-                page_num = 10 if page_num>10 else page_num
-                for i in range(2,page_num+1):
-                    url = "https://www.amazon.com/s?me={}&language=en_US&page={}".format(id,i)
-                    yield scrapy.Request(url=url, method="GET", headers=headers_todict(self.headers), dont_filter=True,
-                                          meta={"id": id, "proxy": "127.0.0.1:8080"})
-
             goods_list = response.css(".s-main-slot.s-result-list.s-search-results.sg-row").xpath("./div")
             brand_list = response.css("#brandsRefinements").xpath("./ul/li")
             brands = []

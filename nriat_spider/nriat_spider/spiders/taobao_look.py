@@ -5,6 +5,7 @@ import re
 from scrapy_redis.spiders import RedisSpider
 from scrapy.utils.reqser import request_to_dict
 from scrapy_redis import picklecompat
+import json,jsonpath
 
 
 class TaobaoGoodSpider(RedisSpider):
@@ -14,11 +15,11 @@ class TaobaoGoodSpider(RedisSpider):
     start_urls = ['https://item.taobao.com/']
     redis_key = "taobao_look:start_url"
     custom_settings = {
-        'CONCURRENT_REQUESTS': 1,
-        "DOWNLOAD_DELAY":0.2,
+        'CONCURRENT_REQUESTS': 2,
+        # "DOWNLOAD_DELAY":0.1,
         "DOWNLOADER_MIDDLEWARES":{'nriat_spider.middlewares.TaobaoLookDownloaderMiddleware': 20,
         'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 21,},
-        "CHANGE_IP_NUM":200
+        "CHANGE_IP_NUM":500
     }
     error_key = "taobao_look:error_url"
 
@@ -35,13 +36,38 @@ class TaobaoGoodSpider(RedisSpider):
             item_s = GmWorkItem()
             item_s["source_code"] = response.text
             yield item_s
-            match = re.search('"itemId":"([0-9]*)',response.text)
-            goods_id = ""
+            match = re.search(" mtopjsonp3\((.*)\)", response.text)
             if match:
-                goods_id = match.group(1)
-            item = GmWorkItem()
-            item["goods_id"] = goods_id
-            yield item
+                json_str = match.group(1)
+                try:
+                    json_data = json.loads(json_str)
+                except Exception as e:
+                    json_data = {}
+                data = json_data.get("data",{})
+                result = data.get("result",[])
+                for list_type in result:
+                    itemList = list_type.get("itemList",[])
+                    for i in itemList:
+                        itemId = i.get("itemId")
+                        sellerId = i.get("sellerId")
+                        price = i.get("salePrice")
+                        if not price:
+                            price = i.get("price")
+                        sold = i.get("sold")
+                        name = i.get("name")
+                        cid = i.get("categoryId")
+                        score = i.get("score")
+                        picUrl = i.get("picUrl")
+                        item = GmWorkItem()
+                        item["goods_id"] = itemId
+                        item["seller_id"] = sellerId
+                        item["price"] = price
+                        item["sales_num"] = sold
+                        item["goods_name"] = name
+                        item["cid"] = cid
+                        item["score"] = score
+                        item["img_url"] = picUrl
+                        yield item
         else:
             try_result = self.try_again(response)
             yield try_result

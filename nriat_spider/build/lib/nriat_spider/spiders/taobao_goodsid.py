@@ -14,7 +14,7 @@ class SmtGoodsSpider(RedisSpider):
     redis_key = "taobao_goodsid:start_url"
     custom_settings = {"DOWNLOADER_MIDDLEWARES": {'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 20,
         'nriat_spider.middlewares.TaobaoZhiboDownloaderMiddleware': 21,},
-                       "CONCURRENT_REQUESTS":1,"CHANGE_IP_NUM":2000,"DOWNLOAD_DELAY":0.2}
+                       "CONCURRENT_REQUESTS":1}
     server1 = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
 
 
