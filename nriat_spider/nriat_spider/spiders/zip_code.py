@@ -27,7 +27,7 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
     def make_requests_from_url(self, url):
         id = url.strip()
         url = "https://www.youbianku.com/{}".format(id)
-        return scrapy.Request(url=url, callback=self.parse, method="GET", headers=self.headers,meta={"id":id},dont_filter=True)
+        return scrapy.Request(url=url, callback=self.parse, method="GET", headers=self.headers,meta={"id":id})
 
     def parse(self, response):
         id = response.meta.get("id")

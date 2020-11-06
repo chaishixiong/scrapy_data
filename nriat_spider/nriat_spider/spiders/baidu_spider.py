@@ -21,7 +21,7 @@ class BaiduxinyongSpider(RedisSpider):
     custom_settings = {
         'SCHEDULER': "scrapy_redis.scheduler.Scheduler",
         'DUPEFILTER_CLASS': "scrapy_redis.dupefilter.RFPDupeFilter",
-        'REDIS_URL': 'redis://192.168.0.230:5208/4',
+        'REDIS_URL': 'redis://192.168.0.225:5208/4',
         'SCHEDULER_PERSIST': True,
         "CHANGE_IP_NUM": 200, "CONCURRENT_REQUESTS": 4
     }
