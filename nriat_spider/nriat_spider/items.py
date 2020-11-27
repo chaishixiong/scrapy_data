@@ -197,6 +197,16 @@ class GmWorkItem(scrapy.Item):
     county = scrapy.Field()
     town = scrapy.Field()
 
+    good_id = scrapy.Field()
+    good_url = scrapy.Field()
+
+    sales = scrapy.Field()
+
+
+    ratingCountLabel = scrapy.Field()
+    huobi_type = scrapy.Field()
+
+
 class AmazonItem(scrapy.Item):
     url = scrapy.Field()
     good_name = scrapy.Field()
@@ -208,6 +218,7 @@ class AmazonItem(scrapy.Item):
     deep = scrapy.Field()
     offer_from = scrapy.Field()
     goodid = scrapy.Field()
+
 
 
 class softtime(scrapy.Item):
