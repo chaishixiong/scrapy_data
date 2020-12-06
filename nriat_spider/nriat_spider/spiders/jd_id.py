@@ -34,6 +34,11 @@ class JdidSpider(RedisSpider):
         vender_id = response.meta.get("vender_id")
         match = re.search("shop-name",response.text)
         if match or response.status==302:
+            item_s = GmWorkItem()
+            item_s["key"] = vender_id
+            item_s["pipeline_level"] = "shop"
+            item_s["source_code"] = response.text
+            yield item_s
             headers = self.get_headers(2)
             shop_name = response.css(".shop-name").xpath("./text()").get()#
             fan_num = response.css(".shop-follow").xpath("./span/text()").get()#
@@ -77,6 +82,11 @@ class JdidSpider(RedisSpider):
 
         match = re.search('"code":200',response.text)
         if match:
+            item_s = GmWorkItem()
+            item_s["key"] = vender_id
+            item_s["pipeline_level"] = "goods"
+            item_s["source_code"] = response.text
+            yield item_s
             data_json = json.loads(response.text)
             data = data_json.get("data")
             totalCount = data.get("totalCount",0)#页数

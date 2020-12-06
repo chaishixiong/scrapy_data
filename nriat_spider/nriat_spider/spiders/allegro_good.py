@@ -15,72 +15,105 @@ class AllegroSpider(RedisSpider):
     start_urls = ['http://allegro.pl/']
     redis_key = "allegro_good:start_url"
     # seed_file = r"X:\数据库\allegro\{allegro_shopid}[good_url].txt"
+    # seed_file = r"W:\lxd\采集数据\allegro\202010\allegro_spider-data_合并.txt_去重.txt[F2].txt"
     custom_settings = {"CHANGE_IP_NUM":20,"CONCURRENT_REQUESTS":4,"REDIRECT_ENABLED":True}
     error_key = "allegro_good:error_url"
 
-    # def start_requests(self):
-    #     headers = self.get_headers(1)
-    #     url = "https://www.baidu.com"
-    #     yield scrapy.Request(url=url, method="GET",callback=self.seed_requests, headers=headers,dont_filter=True)
-    #
-    # def seed_requests(self, response):
-    #     # url = "https://allegro.pl/oferta/zestaw-czyszczacy-9w1-do-aparatu-optyki-sciereczka-8906638228"
-    #     headers = self.get_headers(1)
-    #     with open(self.seed_file,"r",encoding="utf-8") as f:
-    #         for i in f:
-    #             url = i.strip()
-    #             yield scrapy.Request(url=url, method="GET", headers=headers)
 
-    def make_requests_from_url(self, i):
-        url = i.strip()
-        return scrapy.Request(url=url, method="GET", headers=self.get_headers(1))
 
-    def parse(self,response):
-        youxiao = re.search("(About seller|Sprzedający)", response.text)
+    headers = {
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36'
+    }
+
+    def start_requests(self):
+        with open(r'W:\lxd\采集数据\allegro\202010\allegro_spider-data_合并.txt_去重.txt[F2].txt', 'r', encoding='utf-8') as f:
+            for i in f:
+                i = i.replace('\n', '')
+                url = 'https://allegro.pl/oferta/zestaw-czyszczacy-9w1-do-aparatu-optyki-sciereczka-{}'.format(i)
+                print('*******************', url)
+                yield scrapy.Request(url=url, callback=self.parse, headers=self.headers, meta={'url': url})
+
+
+    def parse(self, response):
+        youxiao = re.search("(opboxContext|offerTitle)", response.text)
         url = response.request.url
         if youxiao:
             item_s = GmWorkItem()
             item_s["url"] = url
             item_s["source_code"] = response.text
             yield item_s
-            seller_id = ""
-            match = re.search('"sellerId":"(.*?)"', response.text)
-            if match:
-                seller_id = match.group(1)
-            positive_feedback = response.xpath("//h1[@data-role='recommends-percentage']/text()").get()
-            positive_number = response.xpath("//img[@alt='thumb up']/following-sibling::p/text()").get()
-            bad_number = response.xpath("//img[@alt='thumb down']/following-sibling::p/text()").get()
-            year = response.xpath("//p[text()='Na allegro']/following-sibling::p/text()").get()
-            match = re.search('({"leftLink".*?"hideContact":.*?})', response.text)
-            regon = ""
-            nip = ""
-            company_data = []
-            if match:
-                data_str = match.group(1)
-                try:
-                    data = json.loads(data_str)
-                    company_data = data.get("companyData")
-                    for i in company_data:
-                        if "REGON" in i:
-                            regon = i
-                        if "NIP" in i:
-                            nip = i
-                except:
-                    pass
-            item = GmWorkItem()
-            item["seller_id"] = seller_id
-            item["positive_feedback"] = positive_feedback
-            item["positive_number"] = positive_number
-            item["bad_number"] = bad_number
-            item["year"] = year
-            item["regon"] = regon
-            item["nip"] = nip
-            item["company_data"] = str(company_data)
-            yield item
+
+            data = re.findall('data-serialize-box-name="summary">(.*?)</script>', response.text)[0]
+            # print(data)
+            data = json.loads(data)
+            # 店铺id
+            try:
+                shop_id = data.get('transactionSection', {})
+                shop_id = shop_id.get('precartData', {}).get('sellerId', {})
+
+                print(shop_id)
+            except:
+                shop_id = ''
+
+            # 超级店铺
+            try:
+                shop_super = data.get('offerTitle', {})
+                shop_super = shop_super.get('superSellerActive', {})
+                print(shop_super)
+            except:
+                shop_super = ''
+
+            # 店铺名称
+            try:
+                shop_name = data.get('offerTitle', {})
+                shop_name = shop_name.get('sellerName', {})
+                print(shop_name)
+            except:
+                shop_name = ''
+            # 好评率
+            try:
+                positive_feedback = data.get('offerTitle', {})
+                positive_feedback = positive_feedback.get('sellerRating', {})
+                print(positive_feedback)
+            except:
+                positive_feedback = ''
+
+            # 评论数量
+            try:
+                positive_number = data.get('metaData', {})
+                positive_number = positive_number.get('dataLayer', {}).get('idCategory', {})
+                print(positive_number)
+            except:
+                positive_number = ''
+
+            # 产品评分数量
+            try:
+                ratingCountLabel = data.get('productRating', {})
+                ratingCountLabel = ratingCountLabel.get('ratingCountLabel', {})
+                print(ratingCountLabel)
+            except:
+                ratingCountLabel = ''
+
+            # 货币类型
+            try:
+                huobi_type = data.get('notifyAndWatch', {})
+                huobi_type = huobi_type.get('sellingMode', {}).get('buyNow', {}).get('price', {}).get('sale',
+                                                                                                      {}).get(
+                    'currency', {})
+                print(huobi_type)
+            except:
+                huobi_type = ''
+            print('===================================================================')
+
+            items = GmWorkItem(shop_id=shop_id, shop_super=shop_super, shop_name=shop_name,
+                                positive_feedback=positive_feedback,
+                                positive_number=positive_number, ratingCountLabel=ratingCountLabel,
+                                huobi_type=huobi_type)
+
+            yield items
         else:
             try_result = self.try_again(response, url=url)
             yield try_result
-
 
     def try_again(self,rsp,**kwargs):
         max_num = 5
@@ -103,17 +136,5 @@ class AllegroSpider(RedisSpider):
                 print(e)
 
 
-    def get_headers(self,type = 1):
-        if type == 1:
-            headers = '''accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3
-            accept-encoding: gzip, deflate, br
-            accept-language: zh-CN,zh;q=0.9
-            upgrade-insecure-requests: 1
-            user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.87 Safari/537.36'''
-        else:
-            headers = '''accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3
-                        accept-encoding: gzip, deflate, br
-                        accept-language: zh-CN,zh;q=0.9
-                        upgrade-insecure-requests: 1
-                        user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.87 Safari/537.36'''
-        return headers_todict(headers)
+
+

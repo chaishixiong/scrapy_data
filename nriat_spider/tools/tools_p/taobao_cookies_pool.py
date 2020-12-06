@@ -202,14 +202,14 @@ User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/6
 
 
 if __name__=="__main__":
-    a = TaobaoLookCookies("taobao_look_cookies")
-    for i in range(10):
-        a.add_cookies("126992095")
-        print(len(a))
-    # a = TaobaoCookies("taobao_cookies")
+    # a = TaobaoLookCookies("taobao_look_cookies")
     # for i in range(10):
-    #     a.add_cookies()
+    #     a.add_cookies("126992095")
     #     print(len(a))
+    a = TaobaoCookies("taobao_cookies")
+    for i in range(10):
+        a.add_cookies()
+        print(len(a))
     # cookies,data = a.get_cookies()
     # a.rem_l(a.key,data)
     # print(cookies)

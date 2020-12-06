@@ -46,7 +46,7 @@ class ShopeeSpider(RedisSpider):
                             catid_sub2 = x.get("catid")
                             item = GmWorkItem()
                             item["catid"] = catid
-                            item["category"] = name
+                            item["category"] = None
                             item["catid_sub"] = catid_sub
                             item["category1"] = name_sub
                             item["catid_sub2"] = catid_sub2

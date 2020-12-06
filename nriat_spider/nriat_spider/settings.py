@@ -135,7 +135,7 @@ DOWNLOAD_TIMEOUT = 15#超时等待时间
 #DOWNLOAD_WARNSIZE下载警告大小
 
 #log日志记录
-LOG_LEVEL = "INFO"
+# LOG_LEVEL = "INFO"
 to_day = time.localtime()
 log_file_path = 'log/scrapy_{}_{}_{}.log'.format(to_day.tm_year, to_day.tm_mon, to_day.tm_mday)#在spider添加spidername
 #LOG_FILE = log_file_path

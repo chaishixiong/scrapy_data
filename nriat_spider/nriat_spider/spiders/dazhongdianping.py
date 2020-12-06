@@ -18,10 +18,10 @@ class DianPingSpider(RedisSpider):
     custom_settings = {"DOWNLOAD_DELAY":2,"CHANGE_IP_NUM":10,"DOWNLOADER_MIDDLEWARES" : {'nriat_spider.middlewares.DaZhongDianPingDownloaderMiddleware': 20,
         'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 21,},}
     # Pool = redis.ConnectionPool(host='127.0.0.1', port=6379, password="nriat.123456", max_connections=3)
-    server = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
+    # server = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
     error_key = "dianping:error_url"
     cate_list =[[10,"美食"],[25,"电影演出赛事"],[30,"休闲娱乐"],[60,"酒店"],[50,"丽人"],[15,"K歌"],[45,"运动健身"],[35,"周边游"],[70,"亲子"],[55,"结婚"],[20,"购物"],[95,"宠物"],[80,"生活服务"],[75,"学习培训"],[65,"爱车"],[85,"医疗健康"],[90,"家居"],[40,"宴会"]]
-    limit_num = 5000
+    limit_num = 2000
     zhejiang_city_name = ["安吉县","苍南","长兴县","常山县","淳安县","慈溪","岱山县","德清县","东阳","洞头区","奉化","富春江","富阳区","海宁市","海盐县","杭州","横店","湖州","嘉善县","嘉兴","建德市","江山市","金华","缙云县","景宁畲族自治县","开化县","柯桥区","兰溪市","丽水","临安","临海市","龙港市","龙泉市","龙游县","莫干山","宁波","宁海","磐安县","平湖市","平阳","浦江县","普陀山","千岛湖","青田县","庆元县","衢州","瑞安","三门县","上虞区","绍兴","嵊泗县","嵊州市","松阳县","遂昌县","台州","泰顺县","天目山","天台县","桐庐县","桐乡市","温岭市","温州","文成县","乌镇","武义县","西塘","仙都","仙居县","象山","新昌县","乐清","雁荡山","义乌","永嘉县","永康","余姚","玉环市","云和县","镇海区","舟山","朱家尖","诸暨"]
     def start_requests(self):
         url = "http://www.dianping.com/citylist"
@@ -36,7 +36,7 @@ class DianPingSpider(RedisSpider):
             for li in lis:
                 url = li.xpath("./@href").get("")
                 name = li.xpath("./text()").get()
-                if url and name not in self.zhejiang_city_name:
+                if url:#and name not in self.zhejiang_city_name
                     url = 'https:' + url
                     yield scrapy.Request(url=url, callback=self.get_cate, method="GET",headers=headers,meta={"city":name})
 

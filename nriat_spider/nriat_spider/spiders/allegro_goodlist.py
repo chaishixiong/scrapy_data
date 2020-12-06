@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from scrapy_redis.spiders import RedisSpider
+from tqdm import tqdm
+
 from nriat_spider.items import GmWorkItem
 from tools.tools_r.header_tool import headers_todict
 import re
@@ -19,42 +21,13 @@ class AllegroSpider(RedisSpider):
     custom_settings = {"REDIRECT_ENABLED":True}
 
     def start_requests(self):
-        url = "https://allegro.pl/mapa-strony/kategorie"
-        headers = self.get_headers(1)
-        yield scrapy.Request(url=url,method="GET",callback=self.sort_all,headers=headers,dont_filter=True)
-
-    def sort_all(self,response):
-        url = response.request.url
-        if response.status == 200:
-            item_s = GmWorkItem()
-            headers = self.get_headers(1)
-            item_s["url"] = url
-            item_s["source_code"] = response.text
-            yield item_s
-            sort = response.xpath("//div[@data-box-id='v2teobNjRByj3C0kzZSwig==']/div/div/div")
-            for i in sort:
-                sort_totle = i.css(".container-header._1s2v1._n2pii._sdhee")
-                name_totle = sort_totle.xpath("./text()").get()
-                url_totle = sort_totle.xpath("./small/a/@href").get()
-                if url_totle:
-                    pass
-                else:
-                    print("sort_all有url没有选取", name_totle)
-                sort_sun = i.xpath(".//ul/li/a")
-                for i in sort_sun:
-                    url = i.xpath("./@href").get()
-                    name = i.xpath("./text()").get()
-                    if url:
-                        url = "https://allegro.pl" + url
-                        yield scrapy.Request(url=url, method="GET", headers=headers, meta={"page_first": True})
-                        # item = GmWorkItem()
-                        # item["last_name"] = name_totle
-                        # item["name"] = name
-                        # item["url"] = url
-                        # yield item
-        else:
-            try_result = self.try_again(response,url=response.url)
-            yield try_result
+        with open(r'W:\lxd\Spider\allegro/cat_urls.txt', 'r', encoding='utf-8') as f:
+            for i in tqdm(f):
+                i = i.replace('\n','')
+                for page in range(1,101):
+                    url = i + '?bmatch=baseline-product-cl-eyesa2-engag-dict45-ele-1-5-1106&p={}'.format(page)
+                    # print('*******************',url)
+                    yield scrapy.Request(url=url,callback=self.parse,headers=self.get_headers(1),meta={'url':url})
 
     # def seed_requests(self, response):
     #     # url = "https://allegro.pl/kategoria/materialy-opatrunkowe-opatrunki-specjalistyczne-300385"
@@ -65,23 +38,18 @@ class AllegroSpider(RedisSpider):
     #             yield scrapy.Request(url=url,method="GET",headers=headers,meta={"page_first":True})
 
     def parse(self,response):
-        page_first = response.meta.get("page_first")
-        url = response.url
-        match = re.search('StoreState_base":"([\s\S]*?)","__listing_CookieMonster_base',response.text)
-        if not match:
-            match = re.search('StoreState_gallery":"([\s\S]*?)","__listing_CookieMonster_gallery', response.text)
-        # if not match:
-        #     match = re.search("listing_StoreState_gallery'] ?= ?({.*?});</script>", response.text)#这里没改
-        if match:
+        url = response.meta['url']
+        print(url)
+        data_str = re.findall('"listingType":"base","__listing_StoreState":"(.*?)","__listing_CookieMonster"', response.text)[0]
+        if not data_str:
+            match = re.findall('"listingType":"gallery","__listing_StoreState":"(.*?)","__listing_CookieMonster"', response.text)[0]
+
+        if data_str:
             item_s = GmWorkItem()
             item_s["url"] = url
             item_s["source_code"] = response.text
             yield item_s
-            num = response.css("._1h7wt._1fkm6._g1gnj._3db39_3i0GV._3db39_XEsAE").xpath("./text()").get()
-            page_num = ""
-            if num:
-                page_num = num.replace(" ","")
-            data_str = match.group(1)
+
             data_str = data_str.replace('\\\\','\\')
             data_str = data_str.replace('\\"','"')
             data_str = data_str.replace('\\u002F','/')
@@ -101,7 +69,7 @@ class AllegroSpider(RedisSpider):
                     price_json = j.get("price",{})
                     normal = price_json.get("normal",{})
                     price = normal.get("amount")
-                    sales = j.get("bidInfo")
+                    sales = j.get("popularityLabel")
                     seller = j.get("seller",{})
                     shop_id = seller.get("id")
                     shop_super = seller.get("superSeller")
@@ -109,7 +77,6 @@ class AllegroSpider(RedisSpider):
                     sort_id = j.get("categoryPath")
                     item = GmWorkItem()
                     item["key"] = url
-                    item["page_num"] = page_num
                     item["id"] = good_id
                     item["goods_url"] = good_url
                     item["city"] = city
@@ -126,11 +93,6 @@ class AllegroSpider(RedisSpider):
                 try_result = self.try_again(response, url=url,type=2)
                 yield try_result
 
-            if page_first and page_num:
-                headers = self.get_headers(1)
-                for i in range(2, int(page_num) + 1):
-                    url_next = url + "?p={}".format(i)
-                    yield scrapy.Request(url=url_next, method="GET", headers=headers)
         else:
             try_result = self.try_again(response, url=url,type=1)
             yield try_result
