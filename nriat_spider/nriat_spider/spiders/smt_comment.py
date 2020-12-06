@@ -33,7 +33,7 @@ class SmtCommentSpider(RedisSpider):
         page = ""
         currentPage = "1"
         data = url.strip().split(",")
-        ownerMemberId = data[0]
+        ownerMemberId = data[0]#seller_id
         productId = data[1]
         request = self.request(ownerMemberId,productId,page,currentPage)
         return request
