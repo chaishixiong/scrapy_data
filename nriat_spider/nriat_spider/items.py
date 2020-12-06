@@ -197,6 +197,12 @@ class GmWorkItem(scrapy.Item):
     county = scrapy.Field()
     town = scrapy.Field()
 
+    type_1 = scrapy.Field()
+    type_2 = scrapy.Field()
+    type_3 = scrapy.Field()
+    type_4 = scrapy.Field()
+    school = scrapy.Field()
+
 class AmazonItem(scrapy.Item):
     url = scrapy.Field()
     good_name = scrapy.Field()

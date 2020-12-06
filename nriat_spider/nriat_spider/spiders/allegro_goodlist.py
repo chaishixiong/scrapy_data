@@ -21,7 +21,7 @@ class AllegroSpider(RedisSpider):
     def start_requests(self):
         url = "https://allegro.pl/mapa-strony/kategorie"
         headers = self.get_headers(1)
-        scrapy.Request(url=url,method="GET",callback=self.sort_all,headers=headers,dont_filter=True)
+        yield scrapy.Request(url=url,method="GET",callback=self.sort_all,headers=headers,dont_filter=True)
 
     def sort_all(self,response):
         url = response.request.url

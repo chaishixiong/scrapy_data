@@ -1,6 +1,7 @@
 import pymysql
+
 def get_data(sql_prame,sql):
-    connect = pymysql.connect(host=sql_prame.get("host"), port=3306, db=sql_prame.get("db"),
+    connect = pymysql.connect(host=sql_prame.get("host"), port=sql_prame.get("port",3306), db=sql_prame.get("db"),
                                user=sql_prame.get("user"), password=sql_prame.get("password"), charset="utf8",
                                use_unicode=True, cursorclass=pymysql.cursors.Cursor)
     cursor = connect.cursor()
@@ -12,7 +13,7 @@ def get_data(sql_prame,sql):
 
 
 def get_bigdata(sql_prame,sql):
-    connect = pymysql.connect(host=sql_prame.get("host"), port=3306, db=sql_prame.get("db"),
+    connect = pymysql.connect(host=sql_prame.get("host"), port=sql_prame.get("port",3306), db=sql_prame.get("db"),
                                user=sql_prame.get("user"), password=sql_prame.get("password"), charset="utf8",
                                use_unicode=True, cursorclass=pymysql.cursors.SSCursor)
     cursor = connect.cursor()
