@@ -35,12 +35,14 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
         if youxiao:
             infomation = response.css(".breadcrumb")
             province = infomation.xpath("./span[2]/a/span/text()").get("")
+            if province == "查询":
+                province = ""
             city = infomation.xpath("./span[3]/a/span/text()").get("")
             area = infomation.xpath("./span[4]/a/span/text()").get("")
             area = area.replace(province,"")
             area = area.replace(city,"")
             item = GmWorkItem()
-            item["id"]=id
+            item["id"] = id
             item["province"]=province
             item["city"]=city
             item["area"]=area
