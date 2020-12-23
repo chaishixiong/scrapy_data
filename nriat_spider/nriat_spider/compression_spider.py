@@ -4,16 +4,24 @@ import re
 from collections import defaultdict
 import time
 
+
 class SpiderFileMerge(object):
-
-    def __init__(self,save_path):
+    def __init__(self, save_path):
         self.save_path = Path(save_path)
+        self.finish_list = []
 
-    def merge_file(self,spider_name):
+    def finish(self,finish_list):
+        self._change_finish(finish_list)
+        self.compression()
+        for i in finish_list:
+            self.merge_file(i)
+
+
+    def merge_file(self, spider_name):
         path_spider = self.save_path / (spider_name + "-data")
         sortfile_dict = self._get_folder(path_spider)#合并
         for i in sortfile_dict:
-            file_list = self._folder_tofile(sortfile_dict.get(i))
+            file_list = self._folder_tofile(sortfile_dict.get(i),".txt")
             self._merge_file(self.save_path / (i + ".txt"), file_list)#合并
 
     def compression(self,compression_str="_ok.txt"):
@@ -28,7 +36,6 @@ class SpiderFileMerge(object):
         else:
             return False
 
-
     def compression_file(self,path_name,compression_str):
         file_lists = []
         match = re.search("(.*?-code)$", path_name)
@@ -37,13 +44,24 @@ class SpiderFileMerge(object):
             path_spider = self.save_path / spider_name
             sortfile_dict = self._get_folder(path_spider)  # 合并
             for i in sortfile_dict:
-                file_list = self._folder_tofile(sortfile_dict.get(i), compression_str)
+                finish = None
+                for j in self.finish_list:
+                    if i.startswith(j):
+                        finish = True
+                        break
+                if finish:
+                    file_list = self._folder_tofile(sortfile_dict.get(i), ".txt")
+                else:
+                    file_list = self._folder_tofile(sortfile_dict.get(i), compression_str)
                 file_lists.extend(file_list)
         if file_lists:
-            self._zip7(file_lists)  # 压缩
+            self._zip7(file_lists)#压缩
             return True
         else:
             return False
+
+    def _change_finish(self,finish_list):
+        self.finish_list = finish_list
 
     @staticmethod
     def _merge_file(write_file,files_path):#输入写入文件地址和合并的文件地址列表
@@ -100,6 +118,12 @@ if __name__=="__main__":
         print("----------一轮扫描压缩结束---------------")
         if not result:
             time.sleep(600)
-
-    # a.merge_file()
+    # a = SpiderFileMerge("W:\scrapy_xc")
+    # finish_list = [
+    #     # "jd_id",
+    #     # "shopee_good",
+    #     # "newegg_goods",
+    #     "taobao_look"
+    # ]
+    # a.finish(finish_list)
 

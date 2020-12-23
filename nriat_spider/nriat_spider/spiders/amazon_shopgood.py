@@ -24,7 +24,11 @@ class AmazonShopGoods(RedisSpider):
     start_urls = ['http://www.amazon.com/']
     redis_key = "amazon_shopgoods:start_url"
     error_key = "amazon_shopgoods:error_url"
-    custom_settings = {"DOWNLOAD_DELAY":1,}
+    custom_settings = {"DOWNLOAD_DELAY":1,"DOWNLOADER_MIDDLEWARES":{
+    'nriat_spider.middlewares.IpChangeDownloaderMiddleware': 20,
+    'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 21,
+    'nriat_spider.middlewares.UserAgentChangeDownloaderMiddleware': 22,
+}}
     headers = '''Host: www.amazon.com
 User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Maxthon/4.4.6.2000 Chrome/30.0.1599.101 Safari/537.36
 accept-encoding: gzip, deflate, br
