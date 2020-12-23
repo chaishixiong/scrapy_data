@@ -27,7 +27,8 @@ from scrapy.http.response.html import HtmlResponse
 import datetime
 import random
 from tools.tools_p.taobao_cookies_pool import TaobaoCookies,TaobaoLookCookies
-# from multiprocessing import Process
+from tools.tools_p.dazhong_cookies import get_prame_dazhong
+
 
 
 class NriatSpiderSpiderMiddleware(object):
@@ -435,7 +436,7 @@ class DaZhongDianPingDownloaderMiddleware(object):
         password = settings.get("PASSWORD")
         location_test = settings.get("LOCATION_TEST")
         self.IP = IpChange(username,password)
-        self.IP.change_prame = types.MethodType(self.change_prame, self.IP)  # 将函数run,添加到p1的对象里面。对象里添加函数的方法。
+        self.IP.change_prame = types.MethodType(self.change_prame, self.IP)# 将函数run,添加到p1的对象里面。对象里添加函数的方法。
         self.IP.prame_state = True
         self.IP.location_test = location_test
 
@@ -445,7 +446,7 @@ class DaZhongDianPingDownloaderMiddleware(object):
             return 1
 
     def get_sign1(self):#参数的具体获得
-        url = "https://m.dianping.com/hangzhou/ch10"
+        url = "https://m.dianping.com/quzhou/ch10"
         headers = '''Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3
         Accept-Encoding: gzip, deflate, br
         Accept-Language: zh-CN,zh;q=0.9
@@ -468,16 +469,27 @@ class DaZhongDianPingDownloaderMiddleware(object):
             pass
 
     def request_change(self,request):
-        randomstr = ""
-        for i in range(20):
-            randomstr += random.choice("0123456789qazwsxedcrfvtgbyhnujmikolp")
-        # cookies_dict = {"_hc.v":self.prame.get("_hc.v")}
-        cookies_dict = self.prame.copy()
-        # cookies_dict["_lxsdk_s"]="172554ab5d4-cc7-89c-1f7%7C%7C1"
-        cookies_dict["logan_session_token"] = randomstr
-        cookies_dict["logan_custom_report"] = ""
-        cookeis = dict_to_cookiesstr(cookies_dict)
-        request.headers["Cookie"] = cookeis
+        if "isoapi" in request.url:
+            city_id = request.meta.get("city_id")
+            randomstr = ""
+            for i in range(20):
+                randomstr += random.choice("0123456789qazwsxedcrfvtgbyhnujmikolp")
+            # cookies_dict = {"_hc.v":self.prame.get("_hc.v")}
+            cookies_dict = self.prame.copy()
+            ua = request.headers.get("User-Agent").decode()
+            _lxsdk_cuid = get_prame_dazhong(ua)
+            time_Hm = int(time.time()*1000)
+            # cookies_dict["_lxsdk_s"]="172554ab5d4-cc7-89c-1f7%7C%7C1"
+            cookies_dict["logan_session_token"] = randomstr
+            cookies_dict["logan_custom_report"] = ""
+            cookies_dict["_lxsdk_cuid"] = _lxsdk_cuid
+            cookies_dict["_lxsdk"] = _lxsdk_cuid
+            cookies_dict["Hm_lvt_233c7ef5b9b2d3d59090b5fc510a19ce"] = time_Hm
+            cookies_dict["Hm_lpvt_233c7ef5b9b2d3d59090b5fc510a19ce"] = time_Hm
+            cookies_dict["cityid"] = city_id
+
+            cookeis = dict_to_cookiesstr(cookies_dict)
+            request.headers["Cookie"] = cookeis
 
     @classmethod
     def from_crawler(cls, crawler):

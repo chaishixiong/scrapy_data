@@ -135,7 +135,7 @@ DOWNLOAD_TIMEOUT = 15#超时等待时间
 #DOWNLOAD_WARNSIZE下载警告大小
 
 #log日志记录
-# LOG_LEVEL = "INFO"
+LOG_LEVEL = "INFO"
 to_day = time.localtime()
 log_file_path = 'log/scrapy_{}_{}_{}.log'.format(to_day.tm_year, to_day.tm_mon, to_day.tm_mday)#在spider添加spidername
 #LOG_FILE = log_file_path
@@ -240,7 +240,7 @@ elif get_ip() in ["9.148","9.149","9.170","9.171","9.172","9.173"]:
     USER_NAME = "057764473605"
     PASSWORD = "744523"
 else:
-    USER_NAME = "057762355594"#9.100 9.99 9.98 0.56 0.59
+    USER_NAME = "057762355594"#9.100 9.99 9.98 0.56 0.59 9.129
     PASSWORD = "045805"
 if get_ip() =="0.226" or get_ip() =="7.144":
     LOCATION_TEST = True
