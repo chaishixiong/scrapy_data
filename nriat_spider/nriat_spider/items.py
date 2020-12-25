@@ -199,12 +199,21 @@ class GmWorkItem(scrapy.Item):
 
     good_id = scrapy.Field()
     good_url = scrapy.Field()
-
     sales = scrapy.Field()
-
-
     ratingCountLabel = scrapy.Field()
     huobi_type = scrapy.Field()
+
+    phone = scrapy.Field()
+    email = scrapy.Field()
+    company_info = scrapy.Field()
+    country_w = scrapy.Field()
+    country_p = scrapy.Field()
+    order = scrapy.Field()
+    qq = scrapy.Field()
+    line = scrapy.Field()
+    list_con = scrapy.Field()
+    company_img = scrapy.Field()
+    warehouse_img = scrapy.Field()
 
 
 class AmazonItem(scrapy.Item):

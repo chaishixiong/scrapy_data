@@ -47,7 +47,6 @@ class DianPingSpider(RedisSpider):
         city_name = response.meta.get("city")
         if req_success:
             headers = self.get_headers(1)
-            # headers["Cookie"] = "cityid=3; _hc.v=6486a1f6-19a6-d5bc-dfd9-bac008f8bafa.1590568859; msource=default; default_ab=shopList%3AC%3A5; _lxsdk_s=172554ab5d4-cc7-89c-1f7%7C%7C1; logan_session_token=sl63sc5x5e9fe3u4qfam; logan_custom_report="
             match = re.search("'cityId': ?'(\d+)'",response.text)
             if match:
                 url = "https://m.dianping.com/isoapi/module"
@@ -77,7 +76,6 @@ class DianPingSpider(RedisSpider):
             item_s["source_code"] = response.text
             yield item_s
             headers = self.get_headers(1)
-            # headers["Cookie"] = "cityid=3; _hc.v=6486a1f6-19a6-d5bc-dfd9-bac008f8bafa.1590568859; msource=default; default_ab=shopList%3AC%3A5; _lxsdk_s=172554ab5d4-cc7-89c-1f7%7C%7C1; logan_session_token=sl63sc5x5e9fe3u4qfam; logan_custom_report="
             json_data = json.loads(response.text)
             listData = jsonpath.jsonpath(json_data,"$..listData")
             if listData:
@@ -146,11 +144,6 @@ class DianPingSpider(RedisSpider):
                 self.server.lpush(self.error_key, data)
             except Exception as e:
                 print(e)
-            # item_e = GmWorkItem()
-            # item_e["error_id"] = 1
-            # for i in kwargs:
-            #     item_e[i] = kwargs[i]
-            # return item_e
 
     def get_headers(self, type=1):
         if type == 1:
