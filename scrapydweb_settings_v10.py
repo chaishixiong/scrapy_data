@@ -47,7 +47,7 @@ PASSWORD = 'nriat.123456'
 #   - it's recommended to pass in a tuple of 5 elements.
 #   - e.g. ('', '', '127.0.0.1', '6800', '') or ('username', 'password', 'localhost', '6801', 'group')
 SCRAPYD_SERVERS = [
-    # '192.168.0.10:6800',
+    '192.168.9.11:6800',
     # '192.168.0.56:6800',
     '192.168.9.42:6800',
 
