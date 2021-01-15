@@ -214,6 +214,19 @@ class GmWorkItem(scrapy.Item):
     list_con = scrapy.Field()
     company_img = scrapy.Field()
     warehouse_img = scrapy.Field()
+    date = scrapy.Field()
+
+    main_sales = scrapy.Field()
+    fax = scrapy.Field()
+    creat_date = scrapy.Field()
+    start_date = scrapy.Field()
+    general_manager = scrapy.Field()
+    registered_capital = scrapy.Field()
+    share_capital = scrapy.Field()
+    circulating_shares = scrapy.Field()
+    plate = scrapy.Field()
+    summaryPrice = scrapy.Field()
+    winningSupplierName = scrapy.Field()
 
 
 class AmazonItem(scrapy.Item):

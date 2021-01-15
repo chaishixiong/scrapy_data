@@ -66,7 +66,6 @@ class file_split():
                     os.removedirs(i)
             os.removedirs(path_split)
 
-
 if __name__=="__main__":
     spl_c = file_split("{2_1有效店铺}[KEY].txt",r"D:\spider_seed")
     spl_c.change_num(10000)
