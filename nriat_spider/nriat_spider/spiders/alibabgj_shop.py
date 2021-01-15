@@ -9,16 +9,16 @@ from scrapy_redis import picklecompat
 
 
 class AlibabgjSpider(RedisSpider):
-    name = 'alibabgj_shop'
+    name = 'alibabagj_shop'
     allowed_domains = ['alibaba.com']
     start_urls = ['http://www.alibaba.com/']
-    redis_key = "alibabgj_shop:start_url"
+    redis_key = "alibabagj_shop:start_url"
     headers = headers_todict('''accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3
     accept-encoding: gzip, deflate, br
     accept-language: zh-CN,zh;q=0.9
     upgrade-insecure-requests: 1
     user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.87 Safari/537.36''')
-    error_key = "alibabgj_shop:error_url"
+    error_key = "alibabagj_shop:error_url"
     file_name = r"X:\数据库\阿里巴巴国际站\alibaba_shopid_all.txt"
     # def start_requests(self):
     #     url = "https://www.baidu.com"
@@ -76,7 +76,7 @@ class AlibabgjSpider(RedisSpider):
                     if name and "City" in name:
                         city = value
                     if name and "Zip" in name:
-                        zip = value
+                        zip = value.strip()
                     if name and "Address" in name:
                         address = value
             else:

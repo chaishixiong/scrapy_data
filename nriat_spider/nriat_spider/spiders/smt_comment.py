@@ -118,7 +118,7 @@ class SmtCommentSpider(RedisSpider):
 
             page_mouth = self.mouth_dict.get(mouth.upper())
 
-            if (page_mouth == self.current_mouth or page_mouth == self.current_mouth-1 ) and int(page)*10<int(comment_num):#这里跨年问题or page_mouth in [1,12,11,10,9]
+            if page_mouth in [1,12] and int(page)*10<int(comment_num):#这里跨年问题or page_mouth in [1,12,11,10,9](page_mouth == self.current_mouth or page_mouth == self.current_mouth-1 )
                 ownerMemberId = seller_id
                 productId = goods_id
                 page = int(page)+1

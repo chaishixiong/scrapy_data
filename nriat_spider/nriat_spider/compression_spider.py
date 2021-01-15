@@ -112,18 +112,21 @@ class SpiderFileMerge(object):
                     print(file_name, e)
 
 if __name__=="__main__":
-    a = SpiderFileMerge("W:\scrapy_xc")
-    while True:
-        result = a.compression()
-        print("----------一轮扫描压缩结束---------------")
-        if not result:
-            time.sleep(600)
     # a = SpiderFileMerge("W:\scrapy_xc")
-    # finish_list = [
-    #     # "jd_id",
-    #     # "shopee_good",
-    #     # "newegg_goods",
-    #     "taobao_look"
-    # ]
-    # a.finish(finish_list)
+    # while True:
+    #     result = a.compression()
+    #     print("----------一轮扫描压缩结束---------------")
+    #     if not result:
+    #         time.sleep(600)
+    a = SpiderFileMerge("W:\scrapy_xc")
+    finish_list = [
+        # "jd_id",
+        # "shopee_good",
+        # "newegg_goods",
+        # "taobao_look",
+        # "alibabagj_shop",
+        # "amazon_shopgoods",
+        "smt_comment"
+    ]
+    a.finish(finish_list)
 

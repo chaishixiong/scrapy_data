@@ -20,8 +20,8 @@ Connection: keep-alive
 Host: www.youbianku.com
 Upgrade-Insecure-Requests: 1
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36''')
-    error_key = "zip_code1:error_key"
-    custom_settings = {"DOWNLOAD_DELAY":0.1,"CONCURRENT_REQUESTS":2,"CHANGE_IP_NUM":50}
+    error_key = "zip_code1:error_url"
+    custom_settings = {"DOWNLOAD_DELAY":0.1,"CONCURRENT_REQUESTS":2,"CHANGE_IP_NUM":10}
 
 
     def make_requests_from_url(self, url):

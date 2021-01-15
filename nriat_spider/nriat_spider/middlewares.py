@@ -122,7 +122,7 @@ class UserAgentChangeDownloaderMiddleware(object):
         return s
 
     def process_request(self, request, spider):
-        request.headers["Host"] = self.ua.random
+        request.headers["User-Agent"] = self.ua.random
         return None
 
     def process_response(self, request, response, spider):
