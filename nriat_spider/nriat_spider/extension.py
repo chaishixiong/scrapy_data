@@ -1,17 +1,16 @@
 import logging
 import time
+from pathlib import Path
 from scrapy import signals
 from scrapy.exceptions import NotConfigured
 from scrapy.utils.misc import load_object
 from nriat_spider.seed_split import file_split
 import os
-from pathlib import Path
 import re
 from scrapy_redis import connection ,defaults
 from scrapy.utils.reqser import request_to_dict
 from scrapy_redis import picklecompat
 from tools.tools_d.redis_lock import distributed_lock
-
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +51,6 @@ class redisSpiderSmartIdleExensions():
     def from_crawler(cls, crawler):
         # 首先检查是否应该启用和提高扩展
         # 否则不配置
-
         if not crawler.settings.getbool('MYEXT_ENABLED'):
             raise NotConfigured
 
