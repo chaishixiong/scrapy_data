@@ -92,10 +92,11 @@ EXTENSIONS = {
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 ITEM_PIPELINES = {#从低到高
-    'nriat_spider.pipelines.CodeWriterPipeline': 290,
-    'nriat_spider.pipelines.JsonWriterPipeline': 300,
+    # 'nriat_spider.pipelines.CodeWriterPipeline': 290,
+    # 'nriat_spider.pipelines.JsonWriterPipeline': 300,
     # 'nriat_spider.pipelines.errorWriterPipeline': 310,
-   # 'gm_work.pipelines.MysqlPipeline': 300,
+    'nriat_spider.pipelines.MongoWriterPipeline': 310,
+    # 'gm_work.pipelines.MysqlPipeline': 300,
    # 'scrapy_redis.pipelines.RedisPipeline': 290
 }
 
@@ -161,6 +162,11 @@ SCHEDULER_PERSIST = True# 是否在关闭时候保留原来的调度器和去重
 
 # 密码登陆
 # REDIS_URL="redis://[user]:password@localhost:port"
+
+MONGO_URL = "mongodb://localhost:27017"
+MONGO_PROJECT = "spider_general"
+
+
 
 #连接MYSQL数据库
 MYSQL_HOST = '192.168.0.227'

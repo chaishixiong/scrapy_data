@@ -1,9 +1,9 @@
-from tools.tools_d.account_pool import AccountPool
+from tools.tools_data.account_pool import AccountPool
 import requests
 import time
-from tools.tools_r.taobao.taobao_sign_h5 import get_taobaosign
-from tools.tools_r.header_tool import reqhead_split
-from tools.tools_r.header_tool import headers_todict
+from tools.tools_request.taobao.taobao_sign_h5 import get_taobaosign
+from tools.tools_request.header_tool import reqhead_split
+from tools.tools_request.header_tool import headers_todict
 
 class TaobaoCookies(AccountPool):
     def __init__(self,key):

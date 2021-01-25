@@ -4,7 +4,7 @@ from scrapy_redis.spiders import RedisSpider
 from tqdm import tqdm
 
 from nriat_spider.items import GmWorkItem
-from tools.tools_r.header_tool import headers_todict
+from tools.tools_request.header_tool import headers_todict
 import re
 import json
 from scrapy.utils.reqser import request_to_dict

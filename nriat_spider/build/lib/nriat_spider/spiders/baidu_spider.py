@@ -3,7 +3,7 @@
 import scrapy
 from scrapy_redis.spiders import RedisSpider
 from ..items import GmWorkItem
-from tools.tools_r.header_tool import headers_todict
+from tools.tools_request.header_tool import headers_todict
 import re, os
 import json
 import redis

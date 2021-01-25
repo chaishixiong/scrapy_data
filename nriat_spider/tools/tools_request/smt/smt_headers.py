@@ -1,4 +1,4 @@
-from tools.tools_r.header_tool import headers_todict
+from tools.tools_request.header_tool import headers_todict
 
 def get_headers(type = 1):
     if type == 1:

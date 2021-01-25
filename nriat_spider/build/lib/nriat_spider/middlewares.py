@@ -5,11 +5,11 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-from tools.tools_r.smt.smt_getsign import get_sign
-from tools.tools_r.smt.smt_getparam import get_allprame
-from tools.tools_r.smt.smt_headers import get_headers
-from tools.tools_r.taobao.taobao_sign_h5 import get_taobaosign
-from tools.tools_r.header_tool import get_host,headers_todict,reqhead_split,dict_to_cookiesstr
+from tools.tools_request.smt.smt_getsign import get_sign
+from tools.tools_request.smt.smt_getparam import get_allprame
+from tools.tools_request.smt.smt_headers import get_headers
+from tools.tools_request.taobao.taobao_sign_h5 import get_taobaosign
+from tools.tools_request.header_tool import get_host,headers_todict,reqhead_split,dict_to_cookiesstr
 import requests
 from scrapy import signals
 import os
@@ -25,7 +25,7 @@ from scrapy.core.downloader.handlers.http11 import TunnelError
 from scrapy.http.response.html import HtmlResponse
 import datetime
 import random
-from tools.tools_p.taobao_cookies_pool import TaobaoCookies
+from tools.tools_platerm.taobao_cookies_pool import TaobaoCookies
 # from multiprocessing import Process
 
 
