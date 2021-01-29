@@ -92,10 +92,10 @@ EXTENSIONS = {
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 ITEM_PIPELINES = {#从低到高
-    # 'nriat_spider.pipelines.CodeWriterPipeline': 290,
-    # 'nriat_spider.pipelines.JsonWriterPipeline': 300,
+    'nriat_spider.pipelines.CodeWriterPipeline': 290,
+    'nriat_spider.pipelines.JsonWriterPipeline': 300,
     # 'nriat_spider.pipelines.errorWriterPipeline': 310,
-    'nriat_spider.pipelines.MongoWriterPipeline': 310,
+    # 'nriat_spider.pipelines.MongoWriterPipeline': 310,
     # 'gm_work.pipelines.MysqlPipeline': 300,
    # 'scrapy_redis.pipelines.RedisPipeline': 290
 }

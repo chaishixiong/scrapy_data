@@ -530,7 +530,7 @@ class DaZhongDianPingDownloaderMiddleware(object):
         password = settings.get("PASSWORD")
         location_test = settings.get("LOCATION_TEST")
         self.IP = IpChange(username,password)
-        self.IP.change_prame = types.MethodType(self.change_prame, self.IP)# 将函数run,添加到p1的对象里面。对象里添加函数的方法。
+        self.IP.change_prame = types.MethodType(self.change_prame, self.IP)# change_prame,添加到IP的对象里面。对象里添加函数的方法。
         self.IP.prame_state = True
         self.IP.location_test = location_test
 
