@@ -76,7 +76,7 @@ class BloomFilter(object):
 
 
 if __name__ == '__main__':
-    bf = BloomFilter()
+    bf = BloomFilter(   )
 # 第一次运行时会显示 not exists, 之后再运行会显示 exists
 # bf = BloomFilter()
 # if bf.isContains():  # 判断字符串是否存在

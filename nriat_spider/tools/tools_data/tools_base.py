@@ -2,7 +2,7 @@ import numpy as np
 import os
 import re
 import csv
-from nriat_spider.tools.tools_s.sql_base import get_data
+from nriat_spider.tools.tools_sql.sql_base import get_data
 
 
 class tools_file_b():

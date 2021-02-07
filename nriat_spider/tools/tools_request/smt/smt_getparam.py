@@ -1,8 +1,8 @@
 import time
 import requests
-from tools.tools_r.smt.smt_getsign import get_sign
-from tools.tools_r.smt.smt_headers import get_headers
-from tools.tools_r.header_tool import get_host,reqhead_split
+from tools.tools_request.smt.smt_getsign import get_sign
+from tools.tools_request.smt.smt_headers import get_headers
+from tools.tools_request.header_tool import get_host,reqhead_split
 
 
 

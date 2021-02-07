@@ -5,11 +5,11 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-from tools.tools_r.smt.smt_getsign import get_sign
-from tools.tools_r.smt.smt_getparam import get_allprame
-from tools.tools_r.smt.smt_headers import get_headers
-from tools.tools_r.taobao.taobao_sign_h5 import get_taobaosign
-from tools.tools_r.header_tool import get_host,headers_todict,reqhead_split,dict_to_cookiesstr
+from tools.tools_request.smt.smt_getsign import get_sign
+from tools.tools_request.smt.smt_getparam import get_allprame
+from tools.tools_request.smt.smt_headers import get_headers
+from tools.tools_request.taobao.taobao_sign_h5 import get_taobaosign
+from tools.tools_request.header_tool import get_host,headers_todict,reqhead_split,dict_to_cookiesstr
 import requests
 from scrapy import signals
 import os
@@ -26,8 +26,8 @@ from scrapy.core.downloader.handlers.http11 import TunnelError
 from scrapy.http.response.html import HtmlResponse
 import datetime
 import random
-from tools.tools_p.taobao_cookies_pool import TaobaoCookies,TaobaoLookCookies
-from tools.tools_p.dazhong_cookies import get_prame_dazhong
+from tools.tools_platerm.taobao_cookies_pool import TaobaoCookies,TaobaoLookCookies
+from tools.tools_platerm.dazhong_cookies import get_prame_dazhong
 from fake_useragent import UserAgent
 
 class NriatSpiderSpiderMiddleware(object):
@@ -530,7 +530,7 @@ class DaZhongDianPingDownloaderMiddleware(object):
         password = settings.get("PASSWORD")
         location_test = settings.get("LOCATION_TEST")
         self.IP = IpChange(username,password)
-        self.IP.change_prame = types.MethodType(self.change_prame, self.IP)# 将函数run,添加到p1的对象里面。对象里添加函数的方法。
+        self.IP.change_prame = types.MethodType(self.change_prame, self.IP)# change_prame,添加到IP的对象里面。对象里添加函数的方法。
         self.IP.prame_state = True
         self.IP.location_test = location_test
 

@@ -1,10 +1,10 @@
 import time
 import requests
 
-from nriat_spider.tools.tools_r.smt.smt_getsign import get_sign
-from nriat_spider.tools.tools_r.smt.smt_getparam import get_prame3, get_prame, get_etag
-from nriat_spider.tools.tools_r.header_tool import get_host
-from nriat_spider.tools.tools_r.smt.smt_headers import get_headers
+from nriat_spider.tools.tools_request.smt.smt_getsign import get_sign
+from nriat_spider.tools.tools_request.smt.smt_getparam import get_prame3, get_prame, get_etag
+from nriat_spider.tools.tools_request.header_tool import get_host
+from nriat_spider.tools.tools_request.smt.smt_headers import get_headers
 
 base_url = "https://acs.aliexpress.com/h5/mtop.aliexpress.store.products.search.all/1.0/?jsv=2.4.2&appKey=24770048&t={}&sign={}&api=mtop.aliexpress.store.products.search.all&v=1.0&dataType=json&AntiCreep=true&type=originaljson&data={}"
 

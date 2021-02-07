@@ -11,6 +11,15 @@ from collections import defaultdict
 from pathlib import Path
 import re
 import socket
+from pymongo.errors import PyMongoError
+import pymongo
+import logging
+import time
+from tools.tools_data.format import format_string
+from tools.tools_redis.lock import distributed_lock
+
+logger = logging.getLogger(__name__)
+
 
 class NriatSpiderPipeline(object):
     def process_item(self, item, spider):
@@ -162,6 +171,56 @@ class CodeWriterPipeline(object):
                 file_code.write(data_str)
                 file_code.flush()
         return item
+    @classmethod
+    def from_crawler(cls,crawler):
+        settings = crawler.settings
+        return cls(settings)
+
+
+class MongoWriterPipeline(object):
+    def __init__(self,settings):
+        self.settings = settings
+        self.mongo_url = settings.get("MONGO_URL")
+        self.mongo_db = settings.get("MONGO_PROJECT")
+        self.client = pymongo.MongoClient(self.mongo_url)
+        self.db = self.client[self.mongo_db]
+
+    def open_spider(self, spider):
+        self.name = spider.name
+        self.mongo_num = None
+
+    def close_spider(self, spider):
+        self.client.close()
+
+    def try_connect(self):
+        self.client = pymongo.MongoClient(self.mongo_url)
+        self.db = self.client[self.mongo_db]
+
+    def process_item(self, item, spider):
+        if "pipeline_level" in item:
+            pipeline_level = item.pop("pipeline_level")
+        else:
+            pipeline_level = "general"
+
+        if not self.mongo_num:
+            mongo_value = format_string().date_num()
+            self.mongo_num = distributed_lock().acquire_lock(lock_name=pipeline_level, lock_prefix="mongo:{}:".format(self.name),identifier=mongo_value,time_out=0,acquire_time=1)
+            if not self.mongo_num:
+                #保存到磁盘
+                self.mongo_num = distributed_lock().get_prame(key=pipeline_level, lock_prefix="mongo:{}:".format(self.name))
+        collection = "{}_{}_{}".format(self.name,pipeline_level,self.mongo_num)
+        try:
+            self.db[collection].insert_one(dict(item))
+        except PyMongoError as e:
+            logging.info(e)
+
+        return item
+
+    def date_creat(self,last_num=1):
+        date_format = time.strftime("%Y%m%d",time.localtime())
+        num = str(int(date_format)*10000+last_num)
+        return num
+
     @classmethod
     def from_crawler(cls,crawler):
         settings = crawler.settings

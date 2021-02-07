@@ -3,14 +3,13 @@ import time
 from pathlib import Path
 from scrapy import signals
 from scrapy.exceptions import NotConfigured
-from scrapy.utils.misc import load_object
 from nriat_spider.seed_split import file_split
 import os
 import re
-from scrapy_redis import connection ,defaults
+from scrapy_redis import connection
 from scrapy.utils.reqser import request_to_dict
 from scrapy_redis import picklecompat
-from tools.tools_d.redis_lock import distributed_lock
+from tools.tools_redis.lock import distributed_lock
 
 logger = logging.getLogger(__name__)
 
