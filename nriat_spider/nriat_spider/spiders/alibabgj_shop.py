@@ -67,8 +67,8 @@ class AlibabgjSpider(RedisSpider):
             if not info_table:
                 info_table = response.css(".public-info").xpath("./dl")
                 for i in range(len(info_table.xpath("./dt"))):
-                    name = info_table.xpath("./dt[{}]".format(i+1)).xpath("string(.)").get()
-                    value = info_table.xpath("./dd[{}]".format(i+1)).xpath("string(.)").get()
+                    name = info_table.xpath("./dt[{}]".format(i+1)).xpath("string(.)").get("")
+                    value = info_table.xpath("./dd[{}]".format(i+1)).xpath("string(.)").get("")
                     if name and "Country" in name:
                         country = value
                     if name and "Province" in name:

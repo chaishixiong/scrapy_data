@@ -10,12 +10,12 @@ class SpiderFileMerge(object):
         self.save_path = Path(save_path)
         self.finish_list = []
 
-    def finish(self,finish_list):
+    def finish(self,finish_list,merge=True):
         self._change_finish(finish_list)
         self.compression()
-        for i in finish_list:
-            self.merge_file(i)
-
+        if merge:
+            for i in finish_list:
+                self.merge_file(i)
 
     def merge_file(self, spider_name):
         path_spider = self.save_path / (spider_name + "-data")
@@ -126,7 +126,9 @@ if __name__=="__main__":
         # "taobao_look",
         # "alibabagj_shop",
         # "amazon_shopgoods",
-        "smt_comment"
+        "smt_comment",
+        # "smt_goodsid_order",
+        # "dianping"
     ]
-    a.finish(finish_list)
+    a.finish(finish_list,merge=True)
 

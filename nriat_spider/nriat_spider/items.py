@@ -227,6 +227,7 @@ class GmWorkItem(scrapy.Item):
     plate = scrapy.Field()
     summaryPrice = scrapy.Field()
     winningSupplierName = scrapy.Field()
+    purchaser = scrapy.Field()
 
 
 class AmazonItem(scrapy.Item):
