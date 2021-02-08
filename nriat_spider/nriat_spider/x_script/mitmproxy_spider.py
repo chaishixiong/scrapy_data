@@ -5,5 +5,5 @@ def request(flow:flow):
 
 def response(flow:flow):
     pass
-    #mitmdump -q -s spider_proxy.py -p 8080
+    #mitmdump -q -s mitmproxy_spider.py -p 8080
 

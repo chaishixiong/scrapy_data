@@ -16,16 +16,21 @@ class MyThread(Thread):
 
     def run(self):
         print("开启线程：{}".format(self.thread_id))
-        self.process_data(self.thread_id)#循环使用
+        self.process_data()#循环使用
         print("退出线程：{}".format(self.thread_id))
 
-    def process_data(self,thread_id):
+    def process_data(self):
         while not self.exit_flag:
             self.lock.acquire()
             if not self.q.empty():
-                func,args,kwargs = self.q.get()
+                funcs = self.q.get()
                 self.lock.release()
-                func(thread_id,*args,**kwargs)
+                data = []#每个方法传出来的数据列表
+                for i in funcs:
+                    func,args,kwargs = i
+                    #每个线程
+                    result = func(*args,**kwargs)
+                    data.append(result)
                 # 数据处理
                 # print("processing {}".format(threadID))
             else:
