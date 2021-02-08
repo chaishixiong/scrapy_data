@@ -3,8 +3,8 @@ from scrapy.utils.reqser import request_to_dict
 from scrapy_redis import picklecompat
 
 class RedisSpiderTryagain(RedisSpider):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
         self.error_key
 
     @property

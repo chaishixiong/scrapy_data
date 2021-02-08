@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from tools.tools_request.spider_class import RedisSpiderTryagain
+from scrapy_redis.spiders import RedisSpider
 from nriat_spider.items import AmazonItem
 from tools.tools_request.header_tool import headers_todict
 import re
@@ -22,7 +23,7 @@ class AmazonShopGoods(RedisSpiderTryagain):
     start_urls = ['http://www.amazon.com/']
     redis_key = "amazon_shopinfo:start_url"
     error_key = "amazon_shopinfo:error_url"
-    custom_settings = {"DOWNLOAD_DELAY":1,"DOWNLOADER_MIDDLEWARES":{
+    custom_settings = {"CONCURRENT_REQUESTS":2,"CHANGE_IP_NUM":100,"DOWNLOADER_MIDDLEWARES":{
     'nriat_spider.middlewares.IpChangeDownloaderMiddleware': 20,
     'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 21,
     'nriat_spider.middlewares.UserAgentChangeDownloaderMiddleware': 22,
@@ -35,11 +36,10 @@ Connection: keep-alive
 accept-language: zh-CN,zh;q=0.9
 upgrade-insecure-requests: 1'''
 
-    def start_requests(self):#(self,seed):
-        seed = "AQDNY7BBRP2TY"
+    def make_requests_from_url(self, seed):
         id = seed.strip()
         url = "https://www.amazon.com/sp?ie=UTF8&isCBA=&language=en_US&seller={}&tab=&vasStoreID=".format(id)
-        yield scrapy.Request(url=url, method="GET", headers=headers_todict(self.headers),dont_filter=True,meta={"id":id,"proxy":"127.0.0.1:8888"})
+        return scrapy.Request(url=url, method="GET", headers=headers_todict(self.headers),meta={"id":id,"proxy":"127.0.0.1:8888"})
 
     def parse(self, response):
         youxiao = re.search("(Detailed Seller|errors/404)",response.text)

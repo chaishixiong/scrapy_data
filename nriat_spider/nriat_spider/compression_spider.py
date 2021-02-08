@@ -130,5 +130,5 @@ if __name__=="__main__":
         # "smt_goodsid_order",
         # "dianping"
     ]
-    a.finish(finish_list,merge=True)
+    a.finish(finish_list,merge=False)
 

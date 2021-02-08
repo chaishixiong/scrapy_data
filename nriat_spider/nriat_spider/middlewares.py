@@ -28,7 +28,6 @@ import datetime
 import random
 from tools.tools_platerm.taobao_cookies_pool import TaobaoCookies,TaobaoLookCookies
 from tools.tools_platerm.dazhong_cookies import get_prame_dazhong
-from fake_useragent import UserAgent
 
 class NriatSpiderSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -158,7 +157,9 @@ class UserAgentChangeDownloaderMiddleware(object):
     # scrapy acts as if the downloader middleware does not modify the
     # passed objects.
     def __init__(self):
-        self.ua = UserAgent()
+        from fake_useragent import UserAgent
+        location = r'D:\python_project\spider_express\fake_useragent_0.1.11.json'
+        self.ua = UserAgent(path=location)
 
     @classmethod
     def from_crawler(cls, crawler):
