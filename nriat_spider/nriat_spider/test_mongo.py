@@ -1,10 +1,7 @@
 import pymongo
-from tools.tools_data.thread_pool import ThreaPool
 
-
-class MongoTransfer1(ThreaPool):
+class MongoTransfer1():
     def __init__(self):
-        super().__init__()
         mongo_url = "mongodb://localhost:27017"
         self.mongo_project = "spider_general"
         self.mongo_collection = "amazon_shopinfo_test"
@@ -13,16 +10,23 @@ class MongoTransfer1(ThreaPool):
         self.db = self.client[self.mongo_project]
         self.collection_num = 1000000
 
-    def data_queue(self):
-        for i in range(0,self.collection_num+1,self.split_limit):
-            self.work_queue.put((self.mongo_find,(),{"skip":i}))
+    def mongo_gettableinfo(self):
+        mongoinfo = {"_id":"fgsdf","database":"spider_general","tablename":"amazon_test","fields":
+            [{"field_name": "shop_url", "field_structure": "varchar", "length": 255},
+             {"field_name": "shop_id", "field_structure": "varchar", "length": 255},
+             {"field_name": "shop_name", "field_structure": "varchar", "length": 255},
+             {"field_name": "goods_num", "field_structure": "varchar", "length": 255}]}
+        database = mongoinfo.get("database")
+        tablename = mongoinfo.get("tablename")
+        fields_info = mongoinfo.get("fields")
+        return database,tablename,fields_info
 
-    def mongo_find(self,thread_id,*args,**kwargs):#数据处理的方法
+    def mongo_find(self,skip):#数据处理的方法
         #？？获取的分块数据的后续处理
-        skip = kwargs.get("skip")
         a = self.db[self.mongo_collection].find().limit(self.split_limit).skip(skip)
         data = [i for i in a]
-        print("线程{}获取数据大小：".format(thread_id),len(data))
+        print("线程获取数据大小：{}".format(len(data)))
+        return data
 
     def mongo_inser(self,data):#data后列表会加入_id
         #插入mongo的异常统计等处理
@@ -41,8 +45,3 @@ class MongoTransfer1(ThreaPool):
                 }
                 datas.append(data)
             self.mongo_inser(datas)
-
-
-if __name__=="__main__":
-    a = MongoTransfer1()
-    a.thread_pool(10)

@@ -1,9 +1,7 @@
 import pymysql
-
 #获取sql
 
-
-class MysqlTransfer1():
+class MysqlTransferl():
     def __init__(self,):
         self.db = "test"
         self.mtsql_table = "amazon_shopinfo_test"
@@ -20,23 +18,11 @@ class MysqlTransfer1():
         self.insert_sql = '''insert into {table_name} value ({values})'''
         self.seed_sql = '''select %s from %s'''
 
-
-
     def mysql_find(self,thread_id,*args,**kwargs):#数据处理的方法
-
         pass
-    def mongo_gettableinfo(self):
-        mongoinfo = {"_id":"fgsdf","database":"spider_general","tablename":"amazon_test","fields":
-            [{"field_name": "shop_url", "field_structure": "varchar", "length": 255},
-             {"field_name": "shop_id", "field_structure": "varchar", "length": 255},
-             {"field_name": "shop_name", "field_structure": "varchar", "length": 255},
-             {"field_name": "goods_num", "field_structure": "varchar", "length": 255}]}
-        database = mongoinfo.get("database")
-        tablename = mongoinfo.get("tablename")
-        fields_info = mongoinfo.get("fields")
-        return database,tablename,fields_info
 
     def creat_table(self,tablename,fields_info):
+        '''fields_info is dict'''
         field_list = []
         for field_info in fields_info:
             field_name = field_info.get("field_name")
@@ -56,22 +42,6 @@ class MysqlTransfer1():
             #logging()
             return False
 
-    def run(self):
-        database, tablename, fields_info = self.mongo_gettableinfo()
-        if database and tablename and fields_info:
-            self.creat_table(tablename,fields_info)
-        else:
-            # logging()
-            pass
-
     def mysql_inser(self,data):#data后列表会加入_id
         #插入mongo的异常统计等处理
-
         self.cursor.execute()
-
-    # class MongoMysql():
-    #     def
-
-
-if __name__ == "__main__":
-    MysqlTransfer1().run()
