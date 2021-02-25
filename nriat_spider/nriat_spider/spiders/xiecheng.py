@@ -4,7 +4,6 @@ from scrapy_redis.spiders import RedisSpider
 from nriat_spider.items import GmWorkItem
 from tools.tools_request.header_tool import headers_todict
 import re,json
-import redis
 from scrapy.utils.reqser import request_to_dict
 from scrapy_redis import picklecompat
 
@@ -15,7 +14,6 @@ class XiechengSpider(RedisSpider):
     redis_key = "xiecheng:start_url"
     custom_settings = {"CONCURRENT_REQUESTS":2,"DOWNLOADER_MIDDLEWARES":{'nriat_spider.middlewares.ProcessAllExceptionMiddleware': 20,
                        'nriat_spider.middlewares.UpdatetimeMiddleware': 23,'nriat_spider.middlewares.IpChangeDownloaderMiddleware': 21,}}
-    server = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
     error_key = "xiecheng:error_url"
 
     def start_requests(self):
@@ -29,10 +27,10 @@ class XiechengSpider(RedisSpider):
         url_key = response.request.url
         if youxiao and "北京" in response.text:
             json_str = youxiao.group(1)
-            data_list = re.findall("(\{display.*?\})",json_str)
+            data_list = re.findall('(\{"display".*?\})',json_str)
             city_set = set()
             for i in data_list:
-                match = re.search('data:"(.*?)"',i)
+                match = re.search('"data":"(.*?)"',i)
                 if match:
                     data = match.group(1)
                     data_info = data.split("|")
@@ -71,7 +69,7 @@ class XiechengSpider(RedisSpider):
             Response = data_json.get("Response")
             resultTitle = Response.get("resultTitle")
             hotel_num = re.sub("\D","",resultTitle)
-            #添加剩余页面
+            # 添加剩余页面
             if page == "1" and hotel_num:
                 totle_num = int(int(hotel_num)/20)+1 if int(hotel_num)%20 else int(int(hotel_num)/20)
 

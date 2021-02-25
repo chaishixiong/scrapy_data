@@ -1,41 +1,59 @@
 # -*- coding: utf-8 -*-
-import re
 import scrapy
-from scrapy_redis.spiders import RedisSpider
-from tqdm import tqdm
+from tools.tools_request.spider_class import RedisSpiderTryagain
 from ..items import LinioItem
 import re
-from scrapy.utils.reqser import request_to_dict
-from scrapy_redis import picklecompat
 
-class LinioSpiderSpider(RedisSpider):
+class LinioSpiderSpider(RedisSpiderTryagain):
     name = 'linio_spider'
     allowed_domains = ['www.linio.com.mx']
     # start_urls = ['http://www.linio.com.mx/']
-    redis_key = 'linio'
+    redis_key = 'linio:start_url'
     error_key = "linio:error_url"
     host = 'https://www.linio.com.mx'
     custom_settings = {
-       'REDIS_URL': 'redis://192.168.0.226:5208/4',
         "CHANGE_IP_NUM":2000,
         "CONCURRENT_REQUESTS":2,
-        "REDIRECT_ENABLED": True,
         "DEFAULT_REQUEST_HEADERS" : {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36',
     }
     }
+
     def start_requests(self):
-        with open(r'W:\GC\linio\{cat_url}[cat_url].txt', 'r', encoding='utf-8') as f:
-            for i in tqdm(f):
-                i = i.replace('\n', '')
+        url = "https://www.linio.com.mx/"
+        yield scrapy.Request(url=url,callback=self.get_page,dont_filter=True)
+
+    def get_page(self,response):
+        yuoxiao = "main-menu"
+        if yuoxiao in response.text:
+            cat1 = response.xpath('//div[@id="main-menu"]//ul/li/a/@href').getall()
+            for i in cat1:
+                if i != 'https://viajes.linio.com.mx/paquetes'and i != '/cm/solo-hoy-ofertas':
+                    real_cat1 = 'https://www.linio.com.mx' + i
+                    yield scrapy.Request(url=real_cat1, callback=self.get_page1)
+        else:
+            yield self.try_again(response)
+
+    def get_page1(self,response):
+        youxiao = "navbar-title"
+        has_cat3 = response.meta.get("has_cat3")
+        if youxiao in response.text:
+            cat2 = response.xpath('//div[@class="catalogue-list"]/ul/li/a/@href').getall()
+            for n in cat2:
+                real_cat2 = 'https://www.linio.com.mx' + n + '?page='
                 for num in range(1, 18):
-                    url = i + str(num)
-                    # url = 'https://www.linio.com.mx/s/shoppitronic'
-                    # url = 'https://www.linio.com.mx/c/computacion/punto-de-venta?page=1'
-                    headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Safari/537.36'}
-                    yield scrapy.Request(url=url, headers = headers,callback=self.parse_shop_list)
+                    url = real_cat2 + str(num)
+                    yield scrapy.Request(url=url,callback=self.parse_shop_list)
+            cat3 = response.xpath('//div[@class="banner-layout-5"]/div/a/@href').getall()
+            if cat3 and not has_cat3:
+                for m in cat3:
+                    cat3_url = 'https://www.linio.com.mx' + m
+                    yield scrapy.Request(url=cat3_url,callback=self.get_page1)
+        else:
+            yield self.try_again(response)
+
 
     def parse_shop_list(self, response):
         match = re.search("catalogue-product-container|no encontró",response.text)
@@ -155,25 +173,4 @@ class LinioSpiderSpider(RedisSpider):
                               pipeline_level='shopinfo')
             yield item3
         else:
-            try_result = self.try_again(response)
-            yield try_result
-
-    def try_again(self, rsp):
-        max_num = 5
-        meta = rsp.meta
-        try_num = meta.get("try_num", 0)
-        if try_num < max_num:
-            try_num += 1
-            request = rsp.request
-            request.dont_filter = True
-            request.meta["try_num"] = try_num
-            return request
-        else:
-            request = rsp.request
-            request.meta["try_num"] = 0
-            obj = request_to_dict(request, self)
-            data = picklecompat.dumps(obj)
-            try:
-                self.server.lpush(self.error_key, data)
-            except Exception as e:
-                print(e)
+            yield self.try_again(response)

@@ -118,17 +118,24 @@ if __name__=="__main__":
     #     print("----------一轮扫描压缩结束---------------")
     #     if not result:
     #         time.sleep(600)
+
+
+
     a = SpiderFileMerge("W:\scrapy_xc")
     finish_list = [
         # "jd_id",
         # "shopee_good",
         # "newegg_goods",
         # "taobao_look",
+        # "gmarket_spider",
+        # "xiecheng",
         # "alibabagj_shop",
-        # "amazon_shopgoods",
-        "smt_comment",
+        "amazon_shopgoods",
+        # "amazon_shopinfo",
+        # "smt_comment",
         # "smt_goodsid_order",
-        # "dianping"
+        # "dianping",
+        # "zip_code1"
     ]
-    a.finish(finish_list,merge=False)
+    a.finish(finish_list,merge=True)
 

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from tools.tools_request.spider_class import RedisSpiderTryagain
-from scrapy_redis.spiders import RedisSpider
 from nriat_spider.items import AmazonItem
 from tools.tools_request.header_tool import headers_todict
 import re
@@ -21,7 +20,7 @@ class AmazonShopGoods(RedisSpiderTryagain):
     name = 'amazon_shopinfo'
     allowed_domains = ['amazon.com']
     start_urls = ['http://www.amazon.com/']
-    redis_key = "amazon_shopinfo:start_url"
+    redis_key = "amazon_shopinfo:start_url"#添加file文件加入redis
     error_key = "amazon_shopinfo:error_url"
     custom_settings = {"CONCURRENT_REQUESTS":2,"CHANGE_IP_NUM":100,"DOWNLOADER_MIDDLEWARES":{
     'nriat_spider.middlewares.IpChangeDownloaderMiddleware': 20,
@@ -39,7 +38,7 @@ upgrade-insecure-requests: 1'''
     def make_requests_from_url(self, seed):
         id = seed.strip()
         url = "https://www.amazon.com/sp?ie=UTF8&isCBA=&language=en_US&seller={}&tab=&vasStoreID=".format(id)
-        return scrapy.Request(url=url, method="GET", headers=headers_todict(self.headers),meta={"id":id,"proxy":"127.0.0.1:8888"})
+        return scrapy.Request(url=url, method="GET", headers=headers_todict(self.headers),meta={"id":id,"proxy":"127.0.0.1:8080"})
 
     def parse(self, response):
         youxiao = re.search("(Detailed Seller|errors/404)",response.text)
@@ -94,10 +93,10 @@ upgrade-insecure-requests: 1'''
             county = ""
             main_sales = ""
             average_price = ""
-            # item_s = AmazonItem()
-            # item_s["id"] = id
-            # item_s["source_code"] = response.text
-            # yield item_s
+            item_s = AmazonItem()
+            item_s["id"] = id
+            item_s["source_code"] = response.text
+            yield item_s
             item = AmazonItem()
             item["shop_id"] = shop_id
             item["shop_name"] = shop_name
