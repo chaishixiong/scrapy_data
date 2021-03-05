@@ -8,12 +8,12 @@ class LinioSpiderSpider(RedisSpiderTryagain):
     name = 'linio_spider'
     allowed_domains = ['www.linio.com.mx']
     # start_urls = ['http://www.linio.com.mx/']
-    redis_key = 'linio:start_url'
-    error_key = "linio:error_url"
+    redis_key = 'linio_spider:start_url'
+    error_key = "linio_spider:error_url"
     host = 'https://www.linio.com.mx'
     custom_settings = {
-        "CHANGE_IP_NUM":2000,
-        "CONCURRENT_REQUESTS":2,
+        "CHANGE_IP_NUM":200,
+        "CONCURRENT_REQUESTS":4,
         "DEFAULT_REQUEST_HEADERS" : {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en',
@@ -23,7 +23,7 @@ class LinioSpiderSpider(RedisSpiderTryagain):
 
     def start_requests(self):
         url = "https://www.linio.com.mx/"
-        yield scrapy.Request(url=url,callback=self.get_page,dont_filter=True)
+        yield scrapy.Request(url=url,callback=self.get_page)
 
     def get_page(self,response):
         yuoxiao = "main-menu"
@@ -70,7 +70,7 @@ class LinioSpiderSpider(RedisSpiderTryagain):
 
 
     def parse_good_info(self, response):
-        match = re.search("product-name",response.text)
+        match = re.search("product-name|404 \(Not found\)",response.text)
         if match:
             # shop_name = response.meta['shop_name']
             # print(shop_name)
@@ -140,7 +140,7 @@ class LinioSpiderSpider(RedisSpiderTryagain):
 
             # 店铺名称
             try:
-                shop_name = response.xpath('//a[@class="link-low-md"]//text()').get()
+                shop_name = response.xpath('//a[@class="link-low-md"]//text()').get("").strip()
             except:
                 shop_name = ''
             # print(shop_name)

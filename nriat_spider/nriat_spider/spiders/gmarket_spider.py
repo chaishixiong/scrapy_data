@@ -102,6 +102,9 @@ User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, 
         shop_id = response.meta['shop_id']
         shop_url = response.meta['shop_url']
         if "seller_info_box" in response.text:
+            source_code = response.text
+            item1 = GmarketItem(source_code=source_code)
+            yield item1
             data = response.xpath('//div[@class="seller_info_box"]/dl/dd/text()').getall()
             try:
                 shop_name = data[0].replace(',', '，')

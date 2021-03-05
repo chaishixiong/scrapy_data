@@ -538,3 +538,23 @@ class GmarketItem(scrapy.Item):
     email = scrapy.Field()
     address = scrapy.Field()
     pipeline_level = scrapy.Field()
+
+class AllegroItem(scrapy.Item):
+    # define the fields for your item here like:
+    url = scrapy.Field()
+    good_id = scrapy.Field()
+    good_url = scrapy.Field()
+    city = scrapy.Field()
+    good_name = scrapy.Field()
+    status = scrapy.Field()
+    price = scrapy.Field()
+    sales = scrapy.Field()
+    shop_id = scrapy.Field()
+    shop_super = scrapy.Field()
+    shop_name = scrapy.Field()
+    sort_id = scrapy.Field()
+    source_code = scrapy.Field()
+    positive_feedback = scrapy.Field()
+    positive_number = scrapy.Field()
+    ratingCountLabel = scrapy.Field()
+    huobi_type = scrapy.Field()

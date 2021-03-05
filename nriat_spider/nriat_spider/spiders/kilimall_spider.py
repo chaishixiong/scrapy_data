@@ -16,7 +16,7 @@ class KilimallSpiderSpider(RedisSpiderTryagain):
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36',}
 
     custom_settings = {
-		"CHANGE_IP_NUM": 500, "CONCURRENT_REQUESTS": 6
+		"CHANGE_IP_NUM": 100, "CONCURRENT_REQUESTS": 4
 	}
 
     def start_requests(self):
@@ -47,7 +47,6 @@ class KilimallSpiderSpider(RedisSpiderTryagain):
             item1 = KilimallItem(source_code=response.text)
             yield item1
             data = obj.get('data', {}).get('products')
-            print(data)
             if data != None and data != []:
                 for i in data:
                     # 商品id

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import scrapy
-import jsonpath,json
+import json
 from nriat_spider.items import GmWorkItem
 from tools.tools_request.header_tool import headers_todict
 import re
@@ -12,7 +12,7 @@ class AlibabgjSpider(RedisSpiderTryagain):
     allowed_domains = ['alibaba.com']
     start_urls = ['http://www.alibaba.com/']
     redis_key = "alibabagj_sort:start_url"
-    custom_settings = {"REDIRECT_ENABLED":True}
+    custom_settings = {"REDIRECT_ENABLED":True,"CONCURRENT_REQUESTS":2,"CHANGE_IP_NUM":50}
     headers = headers_todict('''accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3
     accept-encoding: gzip, deflate, br
     accept-language: zh-CN,zh;q=0.9
@@ -37,13 +37,12 @@ class AlibabgjSpider(RedisSpiderTryagain):
                 url = self.process(url)
                 name = i.xpath("./text()").get("").strip()
                 yield scrapy.Request(url=url,callback=self.get_good,headers=self.headers,meta={"name":name,"first":True})
-                break
         else:
             try_result = self.try_again(response)
             yield try_result
 
     def get_good(self, response):
-        effective = '(results for|ProductNormalList|m-gallery-product-item-wrap|not match any products|Check the spelling)'
+        effective = '(results for|ProductNormalList|m-gallery-product-item-wrap|not match any products)'
         meta = response.meta
         url = response.request.url
         name = meta.get("name")
@@ -57,6 +56,7 @@ class AlibabgjSpider(RedisSpiderTryagain):
                 if match:
                     total_count = match.group(1) if match.group(1) else match.group(2)
                     page_num = int(int(total_count)/48)+1 if int(total_count)%48 else int(int(total_count)/48)
+                    page_num = min(page_num,100)
                     for i in range(2,page_num+1):
                         next_url = "{}?page={}".format(url,i)
                         yield scrapy.Request(url=next_url, callback=self.get_good, headers=self.headers,
@@ -68,19 +68,19 @@ class AlibabgjSpider(RedisSpiderTryagain):
                 json_data = json.loads(json_str)
                 props = json_data.get("props")
                 offerResultData = props.get("offerResultData")
-                offerList = offerResultData.get("offerList")
+                offerList = offerResultData.get("offerList",[])
                 for offer in offerList:
-                    information = offer.get("information")
+                    information = offer.get("information",{})
                     puretitle = information.get("puretitle")
                     productUrl = information.get("productUrl")
                     goods_id = information.get("id")
-                    promotionInfoVO = offer.get("promotionInfoVO")
+                    promotionInfoVO = offer.get("promotionInfoVO",{})
                     originalPriceFrom = promotionInfoVO.get("originalPriceFrom")
                     originalPriceTo = promotionInfoVO.get("originalPriceTo")
-                    tradePrice = offer.get("tradePrice")
+                    tradePrice = offer.get("tradePrice",{})
                     unit = tradePrice.get("unit")
                     minOrder = tradePrice.get("minOrder")
-                    supplier = offer.get("supplier")
+                    supplier = offer.get("supplier",{})
                     supplierYear = supplier.get("supplierYear")
                     supplierCountry = supplier.get("supplierCountry").get("name")
                     supplierProvince = supplier.get("supplierProvince").get("name")
@@ -89,10 +89,10 @@ class AlibabgjSpider(RedisSpiderTryagain):
                     supplierHref = supplierHref.replace(r"\/", "/")
 
                     supplierProductListHref = supplier.get("supplierProductListHref")
-                    company = offer.get("company")
+                    company = offer.get("company",{})
                     expCountry = company.get("expCountry")
-                    record = company.get("record")
-                    transaction = record.get("transaction")
+                    record = company.get("record",{})
+                    transaction = record.get("transaction",{})
                     conducted = transaction.get("conducted","")
                     conducted = conducted.replace(",","")
                     conducted = conducted.replace("+","")
@@ -102,7 +102,7 @@ class AlibabgjSpider(RedisSpiderTryagain):
                     transactionLevel = company.get("transactionLevelFloat")
                     responseRate = record.get("responseRate")
                     responseTime = record.get("responseTime")
-                    reviews = offer.get("reviews")
+                    reviews = offer.get("reviews",{})
                     reviewLink = reviews.get("reviewLink")
                     reviewScore = reviews.get("reviewScore")
                     reviewCount = reviews.get("reviewCount")

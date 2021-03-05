@@ -1,5 +1,5 @@
 from scrapy.cmdline import execute
-execute("scrapy crawl alibabagj_sort".split())
+execute("scrapy crawl fruugo_good".split())
 
 #
 # from scrapy.cmdline import execute

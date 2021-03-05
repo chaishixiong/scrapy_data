@@ -1,36 +1,23 @@
 # -*- coding: utf-8 -*-
 import scrapy
-from scrapy_redis.spiders import RedisSpider
 from nriat_spider.items import GmWorkItem
 from tools.tools_request.header_tool import headers_todict
 import re
-from scrapy.utils.reqser import request_to_dict
-from scrapy_redis import picklecompat
+from tools.tools_request.spider_class import RedisSpiderTryagain
 
-class FruugoSpider(RedisSpider):
+class FruugoSpider(RedisSpiderTryagain):
     name = 'fruugo_good'
     allowed_domains = ['fruugo.co.uk']
     start_urls = ['https://www.fruugo.co.uk']
     redis_key = "fruugo_good:start_url"
     custom_settings = {"REDIRECT_ENABLED":True,"CHANGE_IP_NUM":200,"CONCURRENT_REQUESTS":4}
-    # file_name = r"X:\数据库\fruugo\fruugo_sort-data_合并.txt_去重.txt[F3].txt"
     error_key = "fruugo_good:error_url"
 
-    # def start_requests(self):
-    #     url = "https://www.baidu.com"
-    #     headers = self.get_headers(1)
-    #     yield scrapy.Request(url=url,callback=self.seed_process,method="GET",headers=headers,dont_filter=True)#
-    #
-    # def seed_process(self,response):
-    #     headers = self.get_headers(1)
-    #     if response.status == 200:
-    #         for i in open(self.file_name,"r",encoding="utf-8"):
-    #             url = i.strip()
-    #             yield scrapy.Request(url=url, method="GET", headers=headers)
 
     def make_requests_from_url(self, i):
         url = i.strip()
         return scrapy.Request(url=url, method="GET", headers=self.get_headers(1))
+
 
     def parse(self, response):
         youxiao = re.search("(product-title|no longer available)",response.text)
@@ -46,7 +33,7 @@ class FruugoSpider(RedisSpider):
             price = response.css(".price.js-meta-price").xpath("./text()").get()
             if price:
                 price = re.sub("[^\d\.]","",price)
-            product = response.css(".table.table-striped.a11y-text-width").xpath("./tr")
+            product = response.xpath("//ul/li")
             brand = ""
             category = ""
             size = ""
@@ -55,11 +42,11 @@ class FruugoSpider(RedisSpider):
             retailer_vrn = ""
             colour = ""
             for i in product:
-                name_product = i.xpath("./th/text()").get()
-                value = i.xpath("./td/text()").get()
+                name_product = i.xpath("./strong/text()").get("")
+                value = i.xpath("./span/text()").get("")
                 value = value.strip() if value else None
                 if not value:
-                    value = i.xpath("./td/a/text()").get()
+                    value = i.xpath("./a/text()").get("")
                     value = value.strip() if value else None
                 if "Brand" in name_product:
                     brand = value
@@ -92,29 +79,8 @@ class FruugoSpider(RedisSpider):
             item["description"] = description
             yield item
         else:
-            try_result = self.try_again(response,url=url_key)
+            try_result = self.try_again(response)
             yield try_result
-
-    def try_again(self,rsp,**kwargs):
-        print("错误了")
-        max_num = 5
-        meta = rsp.meta
-        try_num = meta.get("try_num",0)
-        if try_num < max_num:
-            try_num += 1
-            request = rsp.request
-            request.dont_filter = True
-            request.meta["try_num"] = try_num
-            return request
-        else:
-            request = rsp.request
-            request.meta["try_num"] = 0
-            obj = request_to_dict(request, self)
-            data = picklecompat.dumps(obj)
-            try:
-                self.server.lpush(self.error_key, data)
-            except Exception as e:
-                print(e)
 
 
     def get_headers(self,type = 1):
