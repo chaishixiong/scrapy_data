@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import re
-
 import scrapy
 import re
 from ..items import EbayItemGood
@@ -19,11 +17,12 @@ class EbayinfoShopSpider(RedisSpiderTryagain):
     # 构造商品列表页url
     def make_requests_from_url(self, url):
         seller = url
+        # seller = "health_from_altai"
         goods_list = f'https://www.ebay.com/sch/{seller}/m.html?_nkw&_armrs=1&_from&rt=nc&LH_PrefLoc=6'
         return scrapy.Request(url=goods_list,
                              #cookies=self.cookie_dict,
                              #headers={'User-Agent':self.ua.random},
-                             callback=self.parse_list)
+                             callback=self.parse_list,meta={"first":True,"key":seller})
 
     # 获取商品url，和下一页url
     def parse_list(self, response):
@@ -37,14 +36,19 @@ class EbayinfoShopSpider(RedisSpiderTryagain):
                                          #cookies=self.cookie_dict,
                                          #headers={'User-Agent':self.ua.random},
                                          callback=self.parse_goodinfo)
-                if response.xpath('//td[@class="pagn-next"]'):
-                    next_page = response.xpath(
-                        '//td[@class="pagn-next"]/a/@href').get()
-                    if next_page != 'javascript:;':
-                        yield scrapy.Request(url=next_page,
+                first = response.meta.get("first")
+                key = response.meta.get("key")
+                goods_num = response.css(".clt").xpath("./span/text()").get("").strip()
+                goods_num = goods_num.replace(" ","")
+                if first and goods_num:
+                    page = int(int(goods_num)/50)+1 if int(goods_num)%50 else int(int(goods_num)/50)
+                    page = min(page,100)
+                    for i in range(2,page+1):
+                        url = "https://www.ebay.com/sch/m.html?_nkw=&_armrs=1&_from=&_ssn={}&LH_PrefLoc=6&_pgn={}&_skc={}&rt=nc".format(key,i,i*50-50)
+                        yield scrapy.Request(url=url,
                                             #headers={'User-Agent':self.ua.random},
                                              #cookies=self.cookie_dict,
-                                             callback=self.parse_list)
+                                             callback=self.parse_list,meta={"key":key})
         else:
             yield self.try_again(response)
 
@@ -57,7 +61,7 @@ class EbayinfoShopSpider(RedisSpiderTryagain):
                 good_id = good_id.group(1)
             else:
                 good_id = ''
-            source_code = response.text
+            # source_code = response.text
             good_name = response.xpath('//h1[@id="itemTitle"]/text()').get()
             if good_name:
                 good_name = good_name.strip().replace(',', '，')
@@ -135,10 +139,8 @@ class EbayinfoShopSpider(RedisSpiderTryagain):
                                 project_location=project_location, brand=brand, seller_name=seller_name,
                                 sales_count=sales_count, cat_1=cat_1, cat_2=cat_2, cat_3=cat_3, cat_4=cat_4, cat_5=cat_5,
                                 cat_6=cat_6)
-
             yield item
-            item_s = EbayItemGood(good_id=good_id,  source_code=source_code)
-
-            yield item_s
+            # item_s = EbayItemGood(good_id=good_id,  source_code=source_code)
+            # yield item_s
         else:
             self.try_again(response)

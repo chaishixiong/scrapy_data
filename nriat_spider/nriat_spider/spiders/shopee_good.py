@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 import scrapy
-from scrapy_redis.spiders import RedisSpider
 from nriat_spider.items import GmWorkItem
 from tools.tools_request.header_tool import headers_todict
 import re
 import json
-from scrapy.utils.reqser import request_to_dict
-from scrapy_redis import picklecompat
+from tools.tools_request.spider_class import RedisSpiderTryagain
 
-class ShopeeGoodSpider(RedisSpider):
+class ShopeeGoodSpider(RedisSpiderTryagain):
     name = 'shopee_good'
     allowed_domains = ['shopee.com.my']
     start_urls = ['http://shopee.com.my/']
@@ -17,22 +15,14 @@ class ShopeeGoodSpider(RedisSpider):
     error_key = "shopee_good:error_url"
     custom_settings = {"CHANGE_IP_NUM":50}
 
-    def start_requests(self):
-        url = "http://www.baidu.com"
-        yield scrapy.Request(url=url, method="GET",callback=self.seed_request)
-
-    def seed_request(self,response):
+    def make_requests_from_url(self, url):
         headers = self.get_headers(1)
-        file_name = r"W:\scrapy_xc\shopee_sort-data_合并.txt[F5].txt"#seed:取上步的第5个
-        with open(file_name,"r",encoding="utf-8") as f:
-            for i in f:
-                data = i.split(",")
-                page = 1#最多100页
-                match_id = data[0]
-                page_num = (page - 1) * 50
-                meta = {"match_id":match_id,"page":page}
-                url = 'https://shopee.com.my/api/v2/search_items/?by=sales&limit=50&match_id={}&newest={}&order=desc&page_type=search&version=2'.format(match_id,page_num)
-                yield scrapy.Request(url=url,headers=headers,meta=meta)
+        page = 1#最多100页
+        match_id = url.strip()
+        page_num = (page - 1) * 50
+        meta = {"match_id":match_id,"page":page}
+        url = 'https://shopee.com.my/api/v2/search_items/?by=sales&limit=50&match_id={}&newest={}&order=desc&page_type=search&version=2'.format(match_id,page_num)
+        return scrapy.Request(url=url,headers=headers,meta=meta)
 
     def parse(self, response):
         youxiao = re.search('("error":null)',response.text)
@@ -108,10 +98,10 @@ class ShopeeGoodSpider(RedisSpider):
                     print("为空：{}".format(url))
             except Exception as e:
                 print(e)
-                yield self.try_again(response, match_id=match_id, page=page)
+                yield self.try_again(response)
         else:
             print("无效：{}".format(url))
-            yield self.try_again(response,match_id=match_id,page=page)
+            yield self.try_again(response)
 
 
     def parse_shop(self, response):
@@ -158,36 +148,11 @@ class ShopeeGoodSpider(RedisSpider):
                     yield item
             except Exception as e:
                 print(e)
-                yield self.try_again(response, shop_id=shop_id, pipeline_level="店铺信息")
+                yield self.try_again(response)
         else:
             print("无效：{}".format(url))
-            yield self.try_again(response, shop_id=shop_id, pipeline_level="店铺信息")
+            yield self.try_again(response)
 
-
-    def try_again(self,rsp,**kwargs):
-        max_num = 4
-        meta = rsp.meta
-        try_num = meta.get("try_num",0)
-        if try_num < max_num:
-            try_num += 1
-            request = rsp.request
-            request.dont_filter = True
-            request.meta["try_num"] = try_num
-            return request
-        else:
-            request = rsp.request
-            request.meta["try_num"] = 0
-            obj = request_to_dict(request, self)
-            data = picklecompat.dumps(obj)
-            try:
-                self.server.lpush(self.error_key, data)
-            except Exception as e:
-                print(e)
-            # item_e = GmWorkItem()
-            # item_e["error_id"] = 1
-            # for i in kwargs:
-            #     item_e[i] = kwargs[i]
-            # return item_e
 
     def get_headers(self,type = 1):
         if type == 1:

@@ -98,7 +98,8 @@ class AlibabgjSpider(RedisSpiderTryagain):
                     conducted = conducted.replace("+","")
 
                     num = transaction.get("num")
-                    tradeAssurance = company.get("tradeAssurance")
+                    tradeAssurance = company.get("tradeAssurance","")
+                    tradeAssurance = tradeAssurance.replace("，","")
                     transactionLevel = company.get("transactionLevelFloat")
                     responseRate = record.get("responseRate")
                     responseTime = record.get("responseTime")
@@ -146,7 +147,7 @@ class AlibabgjSpider(RedisSpiderTryagain):
                     item_shop["reviewScore"] = reviewScore
                     item_shop["reviewCount"] = reviewCount
                     item_shop["reviewLink"] = reviewLink
-                    item_shop["pipeline_level"] = "goods"
+                    item_shop["pipeline_level"] = "shop"
                     yield item_shop
         else:
             try_result = self.try_again(response)

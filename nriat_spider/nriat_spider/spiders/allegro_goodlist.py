@@ -49,7 +49,6 @@ class AllegroSpiderSpider(RedisSpiderTryagain):
             data = json.loads(data_str)
             items = data.get("items")
             elements = items.get("elements", {})
-
             source_code = elements
             item2 = AllegroItem(source_code=source_code)
             yield item2

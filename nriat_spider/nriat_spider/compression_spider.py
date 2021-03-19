@@ -4,7 +4,6 @@ import re
 from collections import defaultdict
 import time
 
-
 class SpiderFileMerge(object):
     def __init__(self, save_path):
         self.save_path = Path(save_path)
@@ -112,34 +111,35 @@ class SpiderFileMerge(object):
                     print(file_name, e)
 
 if __name__=="__main__":
-    a = SpiderFileMerge("W:\scrapy_xc")
-    while True:
-        result = a.compression()
-        print("----------一轮扫描压缩结束---------------")
-        if not result:
-            time.sleep(600)
-
-
     # a = SpiderFileMerge("W:\scrapy_xc")
-    # finish_list = [
-    #     # "jd_id",
-    #     # "shopee_good",
-    #     # "newegg_goods",
-    #     # "taobao_look",
-    #     # "gmarket_spider",
-    #     # "xiecheng",
-    #     # "alibabagj_shop",
-    #     # "amazon_shopgoods",
-    #     # "amazon_shopinfo",
-    #     # "smt_comment",
-    #     # "smt_goodsid_order",
-    #     # "dianping",
-    #     # "zip_code1",
-    #     # "kilimall_spider",
-    #     # "linio_spider",
-    #     # "alibabagj_sort"，
-    #     # "ebayinfo_goods"，
-    #     "fruugo_sort"
-    # ]
-    # a.finish(finish_list,merge=True)
+    # while True:
+    #     result = a.compression()
+    #     print("----------一轮扫描压缩结束---------------")
+    #     if not result:
+    #         time.sleep(600)
 
+
+    a = SpiderFileMerge("W:\scrapy_xc")
+    finish_list = [
+        # "jd_id",
+        # "shopee_good",
+        # "shopee_sort",
+        # "newegg_goods",
+        # "taobao_look",
+        # "gmarket_spider",
+        # "xiecheng",
+        # "alibabagj_shop",
+        # "amazon_shopgoods",
+        "amazon_shopinfo",
+        # "smt_comment",
+        # "smt_goodsid_order",
+        # "dianping",
+        # "zip_code1",
+        # "kilimall_spider",
+        # "linio_spider",
+        # "alibabagj_sort"，
+        # "ebayinfo_goods",
+        # "fruugo_good",
+        # "fruugo_sort"
+    ]
+    a.finish(finish_list,merge=True)
