@@ -14,7 +14,7 @@ class NeweggGoodsSpider(RedisSpider):
     start_urls = ['']
     redis_key = "newegg_goods:start_url"
     custom_settings = {'CONCURRENT_REQUESTS': 2,"CHANGE_IP_NUM": 40,"SCHEDULER_QUEUE_CLASS": 'scrapy_redis.queue.FifoQueue',"REDIRECT_ENABLED":True}
-    server = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
+    # server = redis.Redis(host='192.168.0.225', port=5208, decode_responses=True)
     error_key = "newegg_goods:error_url"
 
 

@@ -4,6 +4,7 @@ import re
 from collections import defaultdict
 import time
 
+
 class SpiderFileMerge(object):
     def __init__(self, save_path):
         self.save_path = Path(save_path)
@@ -124,20 +125,20 @@ if __name__=="__main__":
         # "jd_id",
         # "shopee_good",
         # "shopee_sort",
-        # "newegg_goods",
+        "newegg_goods",
         # "taobao_look",
         # "gmarket_spider",
         # "xiecheng",
-        # "alibabagj_shop",
+        "alibabagj_shop",
+        # "alibabagj_sort",
         # "amazon_shopgoods",
-        "amazon_shopinfo",
+        # "amazon_shopinfo",
         # "smt_comment",
         # "smt_goodsid_order",
         # "dianping",
         # "zip_code1",
         # "kilimall_spider",
         # "linio_spider",
-        # "alibabagj_sort"，
         # "ebayinfo_goods",
         # "fruugo_good",
         # "fruugo_sort"

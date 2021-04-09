@@ -14,7 +14,7 @@ class JdidSpider(RedisSpider):
     allowed_domains = ['jd.id']
     start_urls = ['']
     redis_key = "jd_id:start_url"
-    server1 = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
+    # server1 = redis.Redis(host='192.168.0.226', port=5208, decode_responses=True)
     error_key = "jd_id:error_url"
     area_num = [(1,60000),(10000000,10030000)]
 
@@ -128,7 +128,7 @@ class JdidSpider(RedisSpider):
             obj = request_to_dict(request, self)
             data = picklecompat.dumps(obj)
             try:
-                self.server1.lpush(self.error_key, data)
+                self.server.lpush(self.error_key, data)
             except Exception as e:
                 print(e)
 
